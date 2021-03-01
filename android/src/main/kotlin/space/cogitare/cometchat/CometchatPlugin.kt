@@ -311,8 +311,12 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val receiverType: String = call.argument("receiverType") ?: ""
         val messageType: String = call.argument("messageType") ?: ""
         val filePath: String = call.argument("filePath") ?: ""
+        val caption: String = call.argument("caption") ?: ""
+
 
         val mediaMessage = MediaMessage(receiverID, File(filePath), messageType, receiverType)
+
+        if(caption.isNotEmpty()) mediaMessage.caption = caption
 
         CometChat.sendMediaMessage(mediaMessage, object : CometChat.CallbackListener<MediaMessage>() {
             override fun onSuccess(message: MediaMessage) {
