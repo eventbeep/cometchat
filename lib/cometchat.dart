@@ -291,10 +291,27 @@ class CometChat {
     }
   }
 
-  Future<int> getUnreadMessageCount() async {
+  Future<Map<String, Map<String, int>>> getUnreadMessageCount() async {
     try {
       final count = await _channel.invokeMethod('getUnreadMessageCount');
-      return count;
+      final countMap = Map<String, dynamic>.from(count);
+      return countMap.map((k, v) => MapEntry(k, Map<String, int>.from(v)));
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> markAsRead(
+    int messageId,
+    String senderId,
+    String receiverType,
+  ) async {
+    try {
+      await _channel.invokeMethod('markAsRead', {
+        'messageId': messageId,
+        'senderId': senderId,
+        'receiverType': receiverType,
+      });
     } catch (e) {
       throw e;
     }

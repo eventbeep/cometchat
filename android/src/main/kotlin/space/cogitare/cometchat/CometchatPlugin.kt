@@ -3,6 +3,7 @@ package space.cogitare.cometchat
 import android.content.Context
 import android.util.Log
 import androidx.annotation.NonNull
+import com.cometchat.pro.constants.CometChatConstants
 import com.cometchat.pro.core.*
 import com.cometchat.pro.exceptions.CometChatException
 import com.cometchat.pro.models.*
@@ -59,6 +60,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "fetchNextGroups" -> fetchNextGroups(call, result)
             "registerTokenForPushNotification" -> registerTokenForPushNotification(call, result)
             "getUnreadMessageCount" -> getUnreadMessageCount(result)
+            "markAsRead" -> markAsRead(call, result)
             else -> result.notImplemented()
         }
     }
@@ -574,7 +576,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val token: String = call.argument("token") ?: ""
         CometChat.registerTokenForPushNotification(token, object : CometChat.CallbackListener<String?>() {
             override fun onSuccess(s: String?) {
-                Log.e("onSuccessPN: ", s)
+                Log.e("onSuccessPN: ", s ?: "Done")
                 result.success(null)
             }
 
@@ -589,7 +591,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         CometChat.getUnreadMessageCount(object : CometChat.CallbackListener<HashMap<String, HashMap<String, Int>>>() {
             override fun onSuccess(counts: HashMap<String, HashMap<String, Int>>?) {
                 Log.d("getUnreadMessageCount", "onSuccess: $counts")
-                result.success(counts?.size ?: 0)
+                result.success(counts)
             }
 
             override fun onError(e: CometChatException) {
@@ -597,5 +599,14 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                 result.error(e.code, e.message, e.details)
             }
         })
+    }
+
+    private fun markAsRead(call: MethodCall, result: Result) {
+        val messageId: Int = call.argument("messageId") ?: -1
+        val senderId: String = call.argument("senderId") ?: ""
+        val receiverType: String = call.argument("receiverType") ?: ""
+        CometChat.markAsRead(messageId, senderId, receiverType)
+        result.success(null)
+        Log.d("markAsRead", "Success: $messageId $senderId $receiverType")
     }
 }
