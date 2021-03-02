@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cometchat/models/conversation.dart';
 import 'package:cometchat/models/group.dart';
@@ -314,6 +315,26 @@ class CometChat {
         'senderId': senderId,
         'receiverType': receiverType,
       });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> callExtension(
+    String slug,
+    String requestType,
+    String endPoint,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final result = await _channel.invokeMethod('callExtension', {
+        'slug': slug,
+        'requestType': requestType,
+        'endPoint': endPoint,
+        'body': body,
+      });
+      final map = json.decode(result);
+      return Map<String, dynamic>.from(map);
     } catch (e) {
       throw e;
     }

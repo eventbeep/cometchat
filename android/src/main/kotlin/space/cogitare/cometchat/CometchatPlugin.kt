@@ -3,7 +3,6 @@ package space.cogitare.cometchat
 import android.content.Context
 import android.util.Log
 import androidx.annotation.NonNull
-import com.cometchat.pro.constants.CometChatConstants
 import com.cometchat.pro.core.*
 import com.cometchat.pro.exceptions.CometChatException
 import com.cometchat.pro.models.*
@@ -13,7 +12,9 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import org.json.JSONObject
 import java.io.File
+
 
 /** CometchatPlugin */
 class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
@@ -61,6 +62,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "registerTokenForPushNotification" -> registerTokenForPushNotification(call, result)
             "getUnreadMessageCount" -> getUnreadMessageCount(result)
             "markAsRead" -> markAsRead(call, result)
+            "callExtension" -> callExtension(call, result)
             else -> result.notImplemented()
         }
     }
@@ -316,7 +318,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         val mediaMessage = MediaMessage(receiverID, File(filePath), messageType, receiverType)
 
-        if(caption.isNotEmpty()) mediaMessage.caption = caption
+        if (caption.isNotEmpty()) mediaMessage.caption = caption
 
         CometChat.sendMediaMessage(mediaMessage, object : CometChat.CallbackListener<MediaMessage>() {
             override fun onSuccess(message: MediaMessage) {
@@ -387,18 +389,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         val messagesRequest: MessagesRequest = builder.build()
 
-        if (messageId > 0) messagesRequest.fetchNext(object : CometChat.CallbackListener<List<BaseMessage>>() {
-            override fun onSuccess(messages: List<BaseMessage>) {
-                Log.d("fetchNextMessages", "Fetch messages successful: ${messages.size}")
-                val list = messages.map { e -> getMessageMap(e) }
-                result.success(list)
-            }
-
-            override fun onError(e: CometChatException) {
-                Log.d("fetchNextMessages", "Message fetching failed with exception: " + e.message)
-                result.error(e.code, e.message, e.details)
-            }
-        }) else messagesRequest.fetchPrevious(object : CometChat.CallbackListener<List<BaseMessage>>() {
+        messagesRequest.fetchPrevious(object : CometChat.CallbackListener<List<BaseMessage>>() {
             override fun onSuccess(messages: List<BaseMessage>) {
                 Log.d("fetchPreviousMessages", "Fetch messages successful: ${messages.size}")
                 val list = messages.map { e -> getMessageMap(e) }
@@ -612,5 +603,34 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         CometChat.markAsRead(messageId, senderId, receiverType)
         result.success(null)
         Log.d("markAsRead", "Success: $messageId $senderId $receiverType")
+    }
+
+    private fun callExtension(call: MethodCall, result: Result) {
+        val slug: String = call.argument("slug") ?: ""
+        val requestType: String = call.argument("requestType") ?: ""
+        val endPoint: String = call.argument("endPoint") ?: ""
+
+        val body: JSONObject = JSONObject(call.argument("body") ?: emptyMap<String, Any>())
+
+//        val messageId: Int = call.argument("messageId") ?: -1
+//        val emoji: String = call.argument("messageId") ?: ":smile:"
+//
+//        val body = JSONObject()
+//        body.put("msgId", messageId)
+//        body.put("emoji", emoji)
+
+        Log.d("callExtension", body.toString())
+
+        CometChat.callExtension(slug, requestType, endPoint, body, object : CometChat.CallbackListener<JSONObject>() {
+            override fun onSuccess(response: JSONObject) {
+                Log.d("callExtension", "onSuccess: ${response.toString()}")
+                result.success(response.toString())
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d("callExtension", "onError: ${e.message}")
+                result.error(e.code, e.message, e.details)
+            }
+        })
     }
 }

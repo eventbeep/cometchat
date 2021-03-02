@@ -17,7 +17,7 @@ class BaseMessage {
   final DateTime sentAt;
   final DateTime deliveredAt;
   final DateTime readAt;
-  final Map<String, dynamic> metadata;
+  Map<String, dynamic> metadata;
   final DateTime readByMeAt;
   final DateTime deliveredToMeAt;
   final DateTime deletedAt;
@@ -54,11 +54,17 @@ class BaseMessage {
     this.replyCount,
   });
 
+  // set metadata(Map<String, dynamic> data) {
+  //   return this.metadata = data;
+  // }
+
   factory BaseMessage.fromMap(dynamic map) {
     if (map == null) return null;
 
+    print('Metadata: ${map['metadata']}');
+
     final String category = map['category'];
-    print('Message category is : $category');
+    print('Message category : $category');
     if (category == null || category.isEmpty) {
       throw Exception('Category is missing in JSON');
     }
