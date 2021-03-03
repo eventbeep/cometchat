@@ -54,10 +54,6 @@ class BaseMessage {
     this.replyCount,
   });
 
-  // set metadata(Map<String, dynamic> data) {
-  //   return this.metadata = data;
-  // }
-
   factory BaseMessage.fromMap(dynamic map) {
     if (map == null) return null;
 
@@ -72,9 +68,10 @@ class BaseMessage {
       print('Message type: ${map['type']}');
       if (map['type'] == 'text') {
         return TextMessage.fromMap(map);
-      } else if (map['type'] == 'media') {
+      } else if (map['type'] == 'file' || map['type'] == 'image') {
         return MediaMessage.fromMap(map);
       } else {
+        print('Custom message');
         // Custom message
         throw UnimplementedError();
       }

@@ -175,8 +175,11 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val receiverID: String = call.argument("receiverId") ?: ""
         val messageText: String = call.argument("messageText") ?: ""
         val receiverType: String = call.argument("receiverType") ?: ""
+        val parentMessageId: Int = call.argument("parentMessageId") ?: -1
 
         val textMessage = TextMessage(receiverID, messageText, receiverType)
+
+        if (parentMessageId > 0) textMessage.parentMessageId = parentMessageId
 
         CometChat.sendMessage(textMessage, object : CometChat.CallbackListener<TextMessage>() {
             override fun onSuccess(message: TextMessage) {
@@ -314,6 +317,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val messageType: String = call.argument("messageType") ?: ""
         val filePath: String = call.argument("filePath") ?: ""
         val caption: String = call.argument("caption") ?: ""
+
+        Log.d("sendMediaMessage", "$receiverID $receiverType $messageType $filePath $caption")
 
 
         val mediaMessage = MediaMessage(receiverID, File(filePath), messageType, receiverType)
@@ -611,13 +616,6 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val endPoint: String = call.argument("endPoint") ?: ""
 
         val body: JSONObject = JSONObject(call.argument("body") ?: emptyMap<String, Any>())
-
-//        val messageId: Int = call.argument("messageId") ?: -1
-//        val emoji: String = call.argument("messageId") ?: ":smile:"
-//
-//        val body = JSONObject()
-//        body.put("msgId", messageId)
-//        body.put("emoji", emoji)
 
         Log.d("callExtension", body.toString())
 

@@ -99,12 +99,17 @@ class CometChat {
   }
 
   Future<TextMessage> sendMessage(
-      String messageText, String receiverId, String receiverType) async {
+    String messageText,
+    String receiverId,
+    String receiverType, {
+    int parentMessageId,
+  }) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
         'receiverId': receiverId,
         'receiverType': receiverType,
         'messageText': messageText,
+        'parentMessageId': parentMessageId,
       });
       final textMessage = TextMessage.fromMap(result);
       return textMessage;
