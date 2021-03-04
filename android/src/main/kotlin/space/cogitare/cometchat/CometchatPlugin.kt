@@ -181,6 +181,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         if (parentMessageId > 0) textMessage.parentMessageId = parentMessageId
 
+        Log.d("sendMessage", "parentMessageId - $parentMessageId")
+
         CometChat.sendMessage(textMessage, object : CometChat.CallbackListener<TextMessage>() {
             override fun onSuccess(message: TextMessage) {
                 Log.d("sendMessage", "Message sent successfully: $message")
@@ -317,13 +319,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val messageType: String = call.argument("messageType") ?: ""
         val filePath: String = call.argument("filePath") ?: ""
         val caption: String = call.argument("caption") ?: ""
-
-        Log.d("sendMediaMessage", "$receiverID $receiverType $messageType $filePath $caption")
-
+        val parentMessageId: Int = call.argument("parentMessageId") ?: -1
 
         val mediaMessage = MediaMessage(receiverID, File(filePath), messageType, receiverType)
 
         if (caption.isNotEmpty()) mediaMessage.caption = caption
+
+        if (parentMessageId > 0) mediaMessage.parentMessageId = parentMessageId
 
         CometChat.sendMediaMessage(mediaMessage, object : CometChat.CallbackListener<MediaMessage>() {
             override fun onSuccess(message: MediaMessage) {

@@ -124,6 +124,7 @@ class CometChat {
     String receiverId,
     String receiverType, {
     String caption,
+    int parentMessageId,
   }) async {
     final result = await _channel.invokeMethod('sendMediaMessage', {
       'receiverId': receiverId,
@@ -131,6 +132,7 @@ class CometChat {
       'filePath': filePath,
       'messageType': messageType,
       'caption': caption,
+      'parentMessageId': parentMessageId,
     });
     final mediaMessage = MediaMessage.fromMap(result);
     return mediaMessage;
