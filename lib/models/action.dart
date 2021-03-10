@@ -71,8 +71,6 @@ class Action extends BaseMessage {
   factory Action.fromMap(dynamic map) {
     if (map == null) return null;
 
-    print('Action: $map');
-
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])
         : Group.fromMap(map['receiver']);

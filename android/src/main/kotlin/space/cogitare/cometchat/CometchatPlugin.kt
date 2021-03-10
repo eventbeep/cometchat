@@ -242,7 +242,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         return map
     }
 
-    private fun getAttachmentMap(attachment: Attachment): HashMap<String, Any?> {
+    private fun getAttachmentMap(attachment: Attachment?): HashMap<String, Any?>? {
+        if(attachment == null) return null
         return hashMapOf(
                 "fileName" to attachment.fileName,
                 "fileExtension" to attachment.fileExtension,

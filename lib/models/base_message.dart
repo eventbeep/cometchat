@@ -57,10 +57,10 @@ class BaseMessage {
   factory BaseMessage.fromMap(dynamic map) {
     if (map == null) return null;
 
-    print('Metadata: ${map['metadata']}');
-
     final String category = map['category'];
     print('Message category : $category');
+    print('Message data: $map');
+
     if (category == null || category.isEmpty) {
       throw Exception('Category is missing in JSON');
     }
