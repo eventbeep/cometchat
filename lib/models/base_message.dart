@@ -58,20 +58,16 @@ class BaseMessage {
     if (map == null) return null;
 
     final String category = map['category'];
-    print('Message category : $category');
-    print('Message data: $map');
 
     if (category == null || category.isEmpty) {
       throw Exception('Category is missing in JSON');
     }
     if (category == 'message') {
-      print('Message type: ${map['type']}');
       if (map['type'] == 'text') {
         return TextMessage.fromMap(map);
       } else if (map['type'] == 'file' || map['type'] == 'image') {
         return MediaMessage.fromMap(map);
       } else {
-        print('Custom message');
         // Custom message
         throw UnimplementedError();
       }

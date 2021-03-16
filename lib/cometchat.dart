@@ -13,12 +13,14 @@ import 'models/user.dart';
 
 class CometChat {
   final String appId;
+
+  /// Use this only for testing purpose
   final String authKey;
   final String region;
 
   CometChat(
-    this.appId,
-    this.authKey, {
+    this.appId, {
+    this.authKey,
     this.region,
   });
 
@@ -43,7 +45,7 @@ class CometChat {
   Future<User> createUser(String uid, String name, String avatar) async {
     try {
       final result = await _channel.invokeMethod('createUser', {
-        'apiKey': authKey, // TODO: Test key
+        'apiKey': authKey,
         'uid': uid,
         'name': name,
         'avatar': avatar,
@@ -55,6 +57,8 @@ class CometChat {
     }
   }
 
+  /// Use this function only for testing purpose. For production, use [loginWithAuthToken]
+  @deprecated
   Future<User> loginWithApiKey(String uid) async {
     try {
       final result = await _channel.invokeMethod('loginWithApiKey', {
