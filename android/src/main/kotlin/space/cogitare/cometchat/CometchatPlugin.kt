@@ -196,7 +196,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         })
     }
 
-    private fun getMessageMap(message: BaseMessage): HashMap<String, Any?> {
+    private fun getMessageMap(message: BaseMessage?): HashMap<String, Any?>? {
+        if(message == null) return null
         val map: HashMap<String, Any?> = hashMapOf(
                 "id" to message.id,
                 "muid" to message.muid,
