@@ -6,31 +6,31 @@ import 'group.dart';
 import 'user.dart';
 
 class TextMessage extends BaseMessage {
-  final String text;
+  final String? text;
   TextMessage({
     this.text,
-    int id,
-    String muid,
-    User sender,
-    AppEntity receiver,
-    String receiverUid,
-    String type,
-    String receiverType,
-    String category,
-    DateTime sentAt,
-    DateTime deliveredAt,
-    DateTime readAt,
-    Map<String, dynamic> metadata,
-    DateTime readByMeAt,
-    DateTime deliveredToMeAt,
-    DateTime deletedAt,
-    DateTime editedAt,
-    String deletedBy,
-    String editedBy,
-    DateTime updatedAt,
-    String conversationId,
-    int parentMessageId,
-    int replyCount,
+    int? id,
+    String? muid,
+    User? sender,
+    AppEntity? receiver,
+    String? receiverUid,
+    String? type,
+    String? receiverType,
+    String? category,
+    DateTime? sentAt,
+    DateTime? deliveredAt,
+    DateTime? readAt,
+    Map<String, dynamic>? metadata,
+    DateTime? readByMeAt,
+    DateTime? deliveredToMeAt,
+    DateTime? deletedAt,
+    DateTime? editedAt,
+    String? deletedBy,
+    String? editedBy,
+    DateTime? updatedAt,
+    String? conversationId,
+    int? parentMessageId,
+    int? replyCount,
   }) : super(
           id: id,
           muid: muid,
@@ -57,7 +57,7 @@ class TextMessage extends BaseMessage {
         );
 
   factory TextMessage.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     print('Receiver data ${map['receiver']}');
 

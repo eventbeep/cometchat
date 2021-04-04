@@ -3,24 +3,24 @@ import 'dart:convert';
 import 'user.dart';
 
 class GroupMember extends User {
-  final String scope;
-  final DateTime joinedAt;
+  final String? scope;
+  final DateTime? joinedAt;
 
   GroupMember({
     this.scope,
     this.joinedAt,
-    String uid,
-    String name,
-    String avatar,
-    String link,
-    String role,
-    String status,
-    String statusMessage,
-    DateTime lastActiveAt,
-    List<String> tags,
-    Map<String, dynamic> metadata,
-    bool hasBlockedMe,
-    bool blockedByMe,
+    String? uid,
+    String? name,
+    String? avatar,
+    String? link,
+    String? role,
+    String? status,
+    String? statusMessage,
+    DateTime? lastActiveAt,
+    List<String>? tags,
+    Map<String, dynamic>? metadata,
+    bool? hasBlockedMe,
+    bool? blockedByMe,
   }) : super(
           uid: uid,
           name: name,
@@ -37,7 +37,7 @@ class GroupMember extends User {
         );
 
   factory GroupMember.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return GroupMember(
       scope: map['scope'],

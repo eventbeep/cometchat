@@ -1,9 +1,9 @@
 class Attachment {
-  final String fileUrl;
-  final String fileName;
-  final String fileExtension;
-  final String fileMimeType;
-  final int fileSize;
+  final String? fileUrl;
+  final String? fileName;
+  final String? fileExtension;
+  final String? fileMimeType;
+  final int? fileSize;
 
   Attachment(
     this.fileUrl,
@@ -14,7 +14,7 @@ class Attachment {
   );
 
   factory Attachment.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return Attachment(
       map['fileUrl'],

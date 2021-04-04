@@ -2,11 +2,11 @@ import 'base_message.dart';
 import 'user.dart';
 
 class CustomMessage extends BaseMessage {
-  final String receiverId;
-  final String receiverType;
-  final String customType;
+  final String? receiverId;
+  final String? receiverType;
+  final String? customType;
   final Map<String, dynamic> customData;
-  final User sender;
+  final User? sender;
 
   CustomMessage(
     this.receiverId,
@@ -17,7 +17,7 @@ class CustomMessage extends BaseMessage {
   });
 
   factory CustomMessage.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return CustomMessage(
       map['receiverId'],
