@@ -59,13 +59,9 @@ class TextMessage extends BaseMessage {
   factory TextMessage.fromMap(dynamic map) {
     if (map == null) return null;
 
-    print('Receiver data ${map['receiver']}');
-
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])
         : Group.fromMap(map['receiver']);
-
-    print('Success');
 
     return TextMessage(
       text: map['text'],

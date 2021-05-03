@@ -155,10 +155,9 @@ class CometChat {
   // }
 
   Stream<BaseMessage> onMessageReceived() {
-    return _messageStream.receiveBroadcastStream().map<BaseMessage>((e) {
-      print(e);
-      return BaseMessage.fromMap(e);
-    });
+    return _messageStream
+        .receiveBroadcastStream()
+        .map<BaseMessage>((e) => BaseMessage.fromMap(e));
   }
 
   Future<List<BaseMessage>> fetchPreviousMessages({
@@ -245,10 +244,9 @@ class CometChat {
 
   Future<void> leaveGroup(String guid) async {
     try {
-      final result = await _channel.invokeMethod('leaveGroup', {
+      await _channel.invokeMethod('leaveGroup', {
         'guid': guid,
       });
-      return Group.fromMap(result);
     } catch (e) {
       throw e;
     }

@@ -27,8 +27,6 @@ class Conversation {
         ? User.fromMap(map['conversationWith'])
         : Group.fromMap(map['conversationWith']);
 
-    print('Conversation type: ${appEntity.runtimeType}');
-
     return Conversation(
       conversationId: map['conversationId'],
       conversationType: map['conversationType'],

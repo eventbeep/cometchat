@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     cometChat = CometChat(
       '',
-      '',
+      authKey: '',
       region: 'eu',
     );
   }
