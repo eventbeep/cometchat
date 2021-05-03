@@ -15,8 +15,8 @@ class CometChat {
   final String appId;
 
   /// Use this only for testing purpose
-  final String? authKey;
-  final String? region;
+  final String authKey;
+  final String region;
 
   CometChat(
     this.appId, {
@@ -106,7 +106,7 @@ class CometChat {
     String messageText,
     String receiverId,
     String receiverType, {
-    int? parentMessageId,
+    int parentMessageId,
   }) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
@@ -127,8 +127,8 @@ class CometChat {
     String messageType,
     String receiverId,
     String receiverType, {
-    String? caption,
-    int? parentMessageId,
+    String caption,
+    int parentMessageId,
   }) async {
     final result = await _channel.invokeMethod('sendMediaMessage', {
       'receiverId': receiverId,
@@ -161,12 +161,12 @@ class CometChat {
     });
   }
 
-  Future<List<BaseMessage>?> fetchPreviousMessages({
-    String? uid,
-    String? guid,
-    String? searchTerm,
-    int? afterMessageId,
-    int? limit,
+  Future<List<BaseMessage>> fetchPreviousMessages({
+    String uid,
+    String guid,
+    String searchTerm,
+    int afterMessageId,
+    int limit,
   }) async {
     try {
       final result = await _channel.invokeMethod('fetchPreviousMessages', {
@@ -182,9 +182,9 @@ class CometChat {
     }
   }
 
-  Future<List<Conversation>?> fetchNextConversations({
-    String? conversationType,
-    int? limit,
+  Future<List<Conversation>> fetchNextConversations({
+    String conversationType,
+    int limit,
   }) async {
     try {
       final result = await _channel.invokeMethod('fetchNextConversations', {
@@ -245,9 +245,10 @@ class CometChat {
 
   Future<void> leaveGroup(String guid) async {
     try {
-      await _channel.invokeMethod('leaveGroup', {
+      final result = await _channel.invokeMethod('leaveGroup', {
         'guid': guid,
       });
+      return Group.fromMap(result);
     } catch (e) {
       throw e;
     }
@@ -255,17 +256,18 @@ class CometChat {
 
   Future<void> deleteGroup(String guid) async {
     try {
-      await _channel.invokeMethod('deleteGroup', {
+      final result = await _channel.invokeMethod('deleteGroup', {
         'guid': guid,
       });
+      return Group.fromMap(result);
     } catch (e) {
       throw e;
     }
   }
 
-  Future<List<Group>?> fetchNextGroups({
-    int? limit,
-    String? searchTerm,
+  Future<List<Group>> fetchNextGroups({
+    int limit,
+    String searchTerm,
   }) async {
     try {
       final result = await _channel.invokeMethod('fetchNextGroups', {
@@ -278,9 +280,9 @@ class CometChat {
     }
   }
 
-  Future<List<GroupMember>?> fetchNextGroupMembers(
+  Future<List<GroupMember>> fetchNextGroupMembers(
     String guid, {
-    int? limit,
+    int limit,
   }) async {
     try {
       final result = await _channel.invokeMethod('fetchNextGroupMembers', {

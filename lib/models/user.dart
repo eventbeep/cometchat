@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'app_entity.dart';
 
 class User extends AppEntity {
-  final String? uid;
-  final String? name;
-  final String? avatar;
-  final String? link;
-  final String? role;
-  final String? status;
-  final String? statusMessage;
-  final DateTime? lastActiveAt;
-  final List<String>? tags;
-  final bool? hasBlockedMe;
-  final bool? blockedByMe;
-  final Map<String, dynamic>? metadata;
+  final String uid;
+  final String name;
+  final String avatar;
+  final String link;
+  final String role;
+  final String status;
+  final String statusMessage;
+  final DateTime lastActiveAt;
+  final List<String> tags;
+  final bool hasBlockedMe;
+  final bool blockedByMe;
+  final Map<String, dynamic> metadata;
 
   User({
     this.uid,
@@ -32,7 +32,7 @@ class User extends AppEntity {
   });
 
   factory User.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) return null;
 
     return User(
       uid: map['uid'],

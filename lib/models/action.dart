@@ -9,11 +9,11 @@ class Action extends BaseMessage {
   // final AppEntity actionBy;
   // final AppEntity actionFor;
   // final AppEntity actionOn;
-  final String? message;
-  final String? rawData;
-  final String? action;
-  final String? oldScope;
-  final String? newScope;
+  final String message;
+  final String rawData;
+  final String action;
+  final String oldScope;
+  final String newScope;
 
   Action({
     this.message,
@@ -21,28 +21,28 @@ class Action extends BaseMessage {
     this.action,
     this.oldScope,
     this.newScope,
-    int? id,
-    String? muid,
-    User? sender,
-    AppEntity? receiver,
-    String? receiverUid,
-    String? type,
-    String? receiverType,
-    String? category,
-    DateTime? sentAt,
-    DateTime? deliveredAt,
-    DateTime? readAt,
-    Map<String, dynamic>? metadata,
-    DateTime? readByMeAt,
-    DateTime? deliveredToMeAt,
-    DateTime? deletedAt,
-    DateTime? editedAt,
-    String? deletedBy,
-    String? editedBy,
-    DateTime? updatedAt,
-    String? conversationId,
-    int? parentMessageId,
-    int? replyCount,
+    int id,
+    String muid,
+    User sender,
+    AppEntity receiver,
+    String receiverUid,
+    String type,
+    String receiverType,
+    String category,
+    DateTime sentAt,
+    DateTime deliveredAt,
+    DateTime readAt,
+    Map<String, dynamic> metadata,
+    DateTime readByMeAt,
+    DateTime deliveredToMeAt,
+    DateTime deletedAt,
+    DateTime editedAt,
+    String deletedBy,
+    String editedBy,
+    DateTime updatedAt,
+    String conversationId,
+    int parentMessageId,
+    int replyCount,
   }) : super(
           id: id,
           muid: muid,
@@ -69,7 +69,7 @@ class Action extends BaseMessage {
         );
 
   factory Action.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) return null;
 
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])

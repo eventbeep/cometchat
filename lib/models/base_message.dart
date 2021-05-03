@@ -6,28 +6,28 @@ import 'package:cometchat/models/user.dart';
 import 'app_entity.dart';
 
 class BaseMessage {
-  final int? id;
-  final String? muid;
-  final User? sender;
-  final AppEntity? receiver;
-  final String? receiverUid;
-  final String? type;
-  final String? receiverType;
-  final String? category;
-  final DateTime? sentAt;
-  final DateTime? deliveredAt;
-  final DateTime? readAt;
-  Map<String, dynamic>? metadata;
-  final DateTime? readByMeAt;
-  final DateTime? deliveredToMeAt;
-  final DateTime? deletedAt;
-  final DateTime? editedAt;
-  final String? deletedBy;
-  final String? editedBy;
-  final DateTime? updatedAt;
-  final String? conversationId;
-  final int? parentMessageId;
-  final int? replyCount;
+  final int id;
+  final String muid;
+  final User sender;
+  final AppEntity receiver;
+  final String receiverUid;
+  final String type;
+  final String receiverType;
+  final String category;
+  final DateTime sentAt;
+  final DateTime deliveredAt;
+  final DateTime readAt;
+  Map<String, dynamic> metadata;
+  final DateTime readByMeAt;
+  final DateTime deliveredToMeAt;
+  final DateTime deletedAt;
+  final DateTime editedAt;
+  final String deletedBy;
+  final String editedBy;
+  final DateTime updatedAt;
+  final String conversationId;
+  final int parentMessageId;
+  final int replyCount;
 
   BaseMessage({
     this.id,
@@ -55,9 +55,9 @@ class BaseMessage {
   });
 
   factory BaseMessage.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) return null;
 
-    final String? category = map['category'];
+    final String category = map['category'];
 
     if (category == null || category.isEmpty) {
       throw Exception('Category is missing in JSON');
@@ -74,9 +74,9 @@ class BaseMessage {
     } else if (category == 'action') {
       return Action.fromMap(map);
     } else if (category == 'call') {
-      throw UnimplementedError();
+      return null;
     } else {
-      throw UnimplementedError();
+      return null;
     }
   }
 }

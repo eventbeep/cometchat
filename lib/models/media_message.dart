@@ -7,34 +7,34 @@ import 'group.dart';
 import 'user.dart';
 
 class MediaMessage extends BaseMessage {
-  final String? caption;
-  final Attachment? attachment;
+  final String caption;
+  final Attachment attachment;
 
   MediaMessage({
     this.caption,
     this.attachment,
-    int? id,
-    String? muid,
-    User? sender,
-    AppEntity? receiver,
-    String? receiverUid,
-    String? type,
-    String? receiverType,
-    String? category,
-    DateTime? sentAt,
-    DateTime? deliveredAt,
-    DateTime? readAt,
-    Map<String, dynamic>? metadata,
-    DateTime? readByMeAt,
-    DateTime? deliveredToMeAt,
-    DateTime? deletedAt,
-    DateTime? editedAt,
-    String? deletedBy,
-    String? editedBy,
-    DateTime? updatedAt,
-    String? conversationId,
-    int? parentMessageId,
-    int? replyCount,
+    int id,
+    String muid,
+    User sender,
+    AppEntity receiver,
+    String receiverUid,
+    String type,
+    String receiverType,
+    String category,
+    DateTime sentAt,
+    DateTime deliveredAt,
+    DateTime readAt,
+    Map<String, dynamic> metadata,
+    DateTime readByMeAt,
+    DateTime deliveredToMeAt,
+    DateTime deletedAt,
+    DateTime editedAt,
+    String deletedBy,
+    String editedBy,
+    DateTime updatedAt,
+    String conversationId,
+    int parentMessageId,
+    int replyCount,
   }) : super(
           id: id,
           muid: muid,
@@ -61,7 +61,7 @@ class MediaMessage extends BaseMessage {
         );
 
   factory MediaMessage.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) return null;
 
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])

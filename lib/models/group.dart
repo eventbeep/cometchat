@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'app_entity.dart';
 
 class Group extends AppEntity {
-  final String? guid;
-  final String? owner;
-  final String? name;
-  final String? icon;
-  final String? description;
-  final Map<String, dynamic>? metadata;
-  final bool? hasJoined;
-  final int? membersCount;
-  final DateTime? createdAt;
-  final DateTime? joinedAt;
-  final DateTime? updatedAt;
-  final List<String>? tags;
+  final String guid;
+  final String owner;
+  final String name;
+  final String icon;
+  final String description;
+  final Map<String, dynamic> metadata;
+  final bool hasJoined;
+  final int membersCount;
+  final DateTime createdAt;
+  final DateTime joinedAt;
+  final DateTime updatedAt;
+  final List<String> tags;
 
   Group({
     this.guid,
@@ -32,7 +32,7 @@ class Group extends AppEntity {
   });
 
   factory Group.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) return null;
 
     return Group(
       guid: map['guid'],
