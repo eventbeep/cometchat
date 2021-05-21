@@ -16,33 +16,33 @@ class Action extends BaseMessage {
   final String newScope;
 
   Action({
-    this.message,
-    this.rawData,
-    this.action,
-    this.oldScope,
-    this.newScope,
-    int id,
-    String muid,
-    User sender,
-    AppEntity receiver,
-    String receiverUid,
-    String type,
-    String receiverType,
-    String category,
-    DateTime sentAt,
-    DateTime deliveredAt,
-    DateTime readAt,
-    Map<String, dynamic> metadata,
-    DateTime readByMeAt,
-    DateTime deliveredToMeAt,
-    DateTime deletedAt,
-    DateTime editedAt,
-    String deletedBy,
-    String editedBy,
-    DateTime updatedAt,
-    String conversationId,
-    int parentMessageId,
-    int replyCount,
+    required this.message,
+    required this.rawData,
+    required this.action,
+    required this.oldScope,
+    required this.newScope,
+    required int id,
+    required String? muid,
+    required User sender,
+    required AppEntity receiver,
+    required String receiverUid,
+    required String type,
+    required String receiverType,
+    required String category,
+    required DateTime sentAt,
+    required DateTime deliveredAt,
+    required DateTime readAt,
+    Map<String, dynamic> metadata = const {},
+    required DateTime readByMeAt,
+    required DateTime deliveredToMeAt,
+    required DateTime deletedAt,
+    required DateTime editedAt,
+    required String? deletedBy,
+    required String? editedBy,
+    required DateTime updatedAt,
+    required String conversationId,
+    required int parentMessageId,
+    required int replyCount,
   }) : super(
           id: id,
           muid: muid,
@@ -69,18 +69,18 @@ class Action extends BaseMessage {
         );
 
   factory Action.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])
         : Group.fromMap(map['receiver']);
 
     return Action(
-      message: map['message'],
-      rawData: map['rawData'],
-      action: map['action'],
-      oldScope: map['oldScope'],
-      newScope: map['newScope'],
+      message: map['message'] ?? '',
+      rawData: map['rawData'] ?? '{}',
+      action: map['action'] ?? '',
+      oldScope: map['oldScope'] ?? '',
+      newScope: map['newScope'] ?? '',
       id: map['id'],
       muid: map['muid'],
       sender: User.fromMap(map['sender']),

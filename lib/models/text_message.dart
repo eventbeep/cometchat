@@ -8,29 +8,29 @@ import 'user.dart';
 class TextMessage extends BaseMessage {
   final String text;
   TextMessage({
-    this.text,
-    int id,
-    String muid,
-    User sender,
-    AppEntity receiver,
-    String receiverUid,
-    String type,
-    String receiverType,
-    String category,
-    DateTime sentAt,
-    DateTime deliveredAt,
-    DateTime readAt,
-    Map<String, dynamic> metadata,
-    DateTime readByMeAt,
-    DateTime deliveredToMeAt,
-    DateTime deletedAt,
-    DateTime editedAt,
-    String deletedBy,
-    String editedBy,
-    DateTime updatedAt,
-    String conversationId,
-    int parentMessageId,
-    int replyCount,
+    required this.text,
+    required int id,
+    required String? muid,
+    required User sender,
+    required AppEntity receiver,
+    required String receiverUid,
+    required String type,
+    required String receiverType,
+    required String category,
+    required DateTime sentAt,
+    required DateTime deliveredAt,
+    required DateTime readAt,
+    required Map<String, dynamic> metadata,
+    required DateTime readByMeAt,
+    required DateTime deliveredToMeAt,
+    required DateTime deletedAt,
+    required DateTime editedAt,
+    required String? deletedBy,
+    required String? editedBy,
+    required DateTime updatedAt,
+    required String conversationId,
+    required int parentMessageId,
+    required int replyCount,
   }) : super(
           id: id,
           muid: muid,
@@ -57,14 +57,14 @@ class TextMessage extends BaseMessage {
         );
 
   factory TextMessage.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])
         : Group.fromMap(map['receiver']);
 
     return TextMessage(
-      text: map['text'],
+      text: map['text'] ?? '',
       id: map['id'],
       muid: map['muid'],
       sender: User.fromMap(map['sender']),

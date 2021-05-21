@@ -17,29 +17,29 @@ class Group extends AppEntity {
   final List<String> tags;
 
   Group({
-    this.guid,
-    this.owner,
-    this.name,
-    this.icon,
-    this.description,
-    this.metadata,
-    this.hasJoined,
-    this.membersCount,
-    this.createdAt,
-    this.joinedAt,
-    this.updatedAt,
-    this.tags,
+    required this.guid,
+    required this.owner,
+    required this.name,
+    required this.icon,
+    required this.description,
+    required this.hasJoined,
+    required this.membersCount,
+    required this.createdAt,
+    required this.joinedAt,
+    required this.updatedAt,
+    this.metadata = const {},
+    this.tags = const [],
   });
 
   factory Group.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return Group(
       guid: map['guid'],
       owner: map['owner'],
       name: map['name'],
-      icon: map['icon'],
-      description: map['description'],
+      icon: map['icon'] ?? '',
+      description: map['description'] ?? '',
       metadata: Map<String, dynamic>.from(json.decode(map['metadata'] ?? '{}')),
       hasJoined: map['hasJoined'],
       membersCount: map['membersCount'],

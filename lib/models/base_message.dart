@@ -7,7 +7,7 @@ import 'app_entity.dart';
 
 class BaseMessage {
   final int id;
-  final String muid;
+  final String? muid;
   final User sender;
   final AppEntity receiver;
   final String receiverUid;
@@ -17,49 +17,54 @@ class BaseMessage {
   final DateTime sentAt;
   final DateTime deliveredAt;
   final DateTime readAt;
-  Map<String, dynamic> metadata;
+  final Map<String, dynamic> metadata;
   final DateTime readByMeAt;
   final DateTime deliveredToMeAt;
   final DateTime deletedAt;
   final DateTime editedAt;
-  final String deletedBy;
-  final String editedBy;
+  final String? deletedBy;
+  final String? editedBy;
   final DateTime updatedAt;
   final String conversationId;
   final int parentMessageId;
   final int replyCount;
 
   BaseMessage({
-    this.id,
-    this.muid,
-    this.sender,
-    this.receiver,
-    this.receiverUid,
-    this.type,
-    this.receiverType,
-    this.category,
-    this.sentAt,
-    this.deliveredAt,
-    this.readAt,
-    this.metadata,
-    this.readByMeAt,
-    this.deliveredToMeAt,
-    this.deletedAt,
-    this.editedAt,
-    this.deletedBy,
-    this.editedBy,
-    this.updatedAt,
-    this.conversationId,
-    this.parentMessageId,
-    this.replyCount,
+    required this.id,
+    required this.muid,
+    required this.sender,
+    required this.receiver,
+    required this.receiverUid,
+    required this.type,
+    required this.receiverType,
+    required this.category,
+    required this.sentAt,
+    required this.deliveredAt,
+    required this.readAt,
+    required this.metadata,
+    required this.readByMeAt,
+    required this.deliveredToMeAt,
+    required this.deletedAt,
+    required this.editedAt,
+    required this.deletedBy,
+    required this.editedBy,
+    required this.updatedAt,
+    required this.conversationId,
+    required this.parentMessageId,
+    required this.replyCount,
   });
 
   factory BaseMessage.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
+    // final hashMap = Map.from(map);
+    // hashMap.remove('receiver');
+    // hashMap.remove('sender');
+    // hashMap.remove('metadata');
+    // print('Base Message: $hashMap');
 
-    final String category = map['category'];
+    final String category = map['category'] ?? '';
 
-    if (category == null || category.isEmpty) {
+    if (category.isEmpty) {
       throw Exception('Category is missing in JSON');
     }
     if (category == 'message') {
@@ -74,9 +79,9 @@ class BaseMessage {
     } else if (category == 'action') {
       return Action.fromMap(map);
     } else if (category == 'call') {
-      return null;
+      throw UnimplementedError();
     } else {
-      return null;
+      throw ArgumentError();
     }
   }
 }

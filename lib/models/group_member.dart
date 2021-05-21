@@ -7,20 +7,20 @@ class GroupMember extends User {
   final DateTime joinedAt;
 
   GroupMember({
-    this.scope,
-    this.joinedAt,
-    String uid,
-    String name,
-    String avatar,
-    String link,
-    String role,
-    String status,
-    String statusMessage,
-    DateTime lastActiveAt,
-    List<String> tags,
-    Map<String, dynamic> metadata,
-    bool hasBlockedMe,
-    bool blockedByMe,
+    required this.scope,
+    required this.joinedAt,
+    required String uid,
+    required String name,
+    required String avatar,
+    required String link,
+    required String role,
+    required String status,
+    required String statusMessage,
+    required DateTime lastActiveAt,
+    required List<String> tags,
+    required Map<String, dynamic> metadata,
+    required bool hasBlockedMe,
+    required bool blockedByMe,
   }) : super(
           uid: uid,
           name: name,
@@ -37,10 +37,10 @@ class GroupMember extends User {
         );
 
   factory GroupMember.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return GroupMember(
-      scope: map['scope'],
+      scope: map['scope'] ?? '',
       joinedAt: DateTime.fromMillisecondsSinceEpoch(map['joinedAt'] * 1000),
       uid: map['uid'],
       name: map['name'],

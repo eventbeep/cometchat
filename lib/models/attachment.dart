@@ -14,7 +14,7 @@ class Attachment {
   );
 
   factory Attachment.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
 
     return Attachment(
       map['fileUrl'],

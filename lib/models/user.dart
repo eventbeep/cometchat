@@ -17,36 +17,38 @@ class User extends AppEntity {
   final Map<String, dynamic> metadata;
 
   User({
-    this.uid,
-    this.name,
-    this.avatar,
-    this.link,
-    this.role,
-    this.status,
-    this.statusMessage,
-    this.lastActiveAt,
-    this.tags,
-    this.metadata,
-    this.hasBlockedMe,
-    this.blockedByMe,
+    required this.uid,
+    required this.name,
+    required this.avatar,
+    this.link = '',
+    this.role = 'default',
+    this.status = 'offline',
+    this.statusMessage = '',
+    required this.lastActiveAt,
+    this.tags = const [],
+    this.metadata = const {},
+    this.hasBlockedMe = false,
+    this.blockedByMe = false,
   });
 
   factory User.fromMap(dynamic map) {
-    if (map == null) return null;
+    if (map == null) throw ArgumentError('The type of map is null');
+
+    // print('User: $map');
 
     return User(
       uid: map['uid'],
-      name: map['name'],
-      avatar: map['avatar'],
-      link: map['link'],
-      role: map['role'],
-      status: map['status'],
-      statusMessage: map['statusMessage'],
+      name: map['name'] ?? '',
+      avatar: map['avatar'] ?? '',
+      link: map['link'] ?? '',
+      role: map['role'] ?? 'default',
+      status: map['status'] ?? 'offline',
+      statusMessage: map['statusMessage'] ?? '',
       lastActiveAt:
           DateTime.fromMillisecondsSinceEpoch(map['lastActiveAt'] * 1000),
       tags: List<String>.from(map['tags'] ?? []),
-      hasBlockedMe: map['hasBlockedMe'],
-      blockedByMe: map['blockedByMe'],
+      hasBlockedMe: map['hasBlockedMe'] ?? false,
+      blockedByMe: map['blockedByMe'] ?? false,
       metadata: Map<String, dynamic>.from(json.decode(map['metadata'] ?? '{}')),
     );
   }
