@@ -95,6 +95,7 @@ class CometChat {
   Future<User?> getLoggedInUser() async {
     try {
       final result = await _channel.invokeMethod('getLoggedInUser');
+      if (result == null) return null;
       final user = User.fromMap(result);
       return user;
     } catch (e) {
@@ -174,8 +175,13 @@ class CometChat {
         'searchTerm': searchTerm,
         'messageId': afterMessageId,
         'limit': limit,
-      });
-      return result.map<BaseMessage>((e) => BaseMessage.fromMap(e)).toList();
+      }) as List;
+      final List<BaseMessage?> list = result
+          .map<BaseMessage?>((e) => e == null ? null : BaseMessage.fromMap(e))
+          .where((e) => e != null)
+          .toList();
+
+      return list.map<BaseMessage>((e) => e!).toList();
     } catch (e) {
       throw e;
     }

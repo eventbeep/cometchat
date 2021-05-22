@@ -8,7 +8,7 @@ import 'user.dart';
 
 class MediaMessage extends BaseMessage {
   final String caption;
-  final Attachment attachment;
+  final Attachment? attachment;
 
   MediaMessage({
     required this.caption,
@@ -61,15 +61,18 @@ class MediaMessage extends BaseMessage {
         );
 
   factory MediaMessage.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null)
+      throw ArgumentError('The type of mediamessage map is null');
 
     final appEntity = (map['receiverType'] == 'user')
         ? User.fromMap(map['receiver'])
         : Group.fromMap(map['receiver']);
 
     return MediaMessage(
-      caption: map['caption'],
-      attachment: Attachment.fromMap(map['attachment']),
+      caption: map['caption'] ?? '',
+      attachment: map['attachment'] == null
+          ? null
+          : Attachment.fromMap(map['attachment']),
       id: map['id'],
       muid: map['muid'],
       sender: User.fromMap(map['sender']),

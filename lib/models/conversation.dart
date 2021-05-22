@@ -1,8 +1,7 @@
-import 'package:cometchat/models/app_entity.dart';
-import 'package:cometchat/models/base_message.dart';
-import 'package:cometchat/models/group.dart';
-import 'package:cometchat/models/user.dart';
-import 'package:logger/logger.dart';
+import 'app_entity.dart';
+import 'base_message.dart';
+import 'group.dart';
+import 'user.dart';
 
 class Conversation {
   final String conversationId;
@@ -22,7 +21,10 @@ class Conversation {
   });
 
   factory Conversation.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null)
+      throw ArgumentError('The type of conversation map is null');
+
+    // Logger().d(map);
 
     final appEntity = (map['conversationType'] == 'user')
         ? User.fromMap(map['conversationWith'])

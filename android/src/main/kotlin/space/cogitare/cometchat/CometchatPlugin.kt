@@ -34,7 +34,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cometchat")
         channel.setMethodCallHandler(this)
 
-        messageStream = EventChannel(flutterPluginBinding.binaryMessenger, "cometchat_message_stream")
+        messageStream =
+            EventChannel(flutterPluginBinding.binaryMessenger, "cometchat_message_stream")
         messageStream.setStreamHandler(this)
     }
 
@@ -84,7 +85,9 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val appID: String = call.argument("appId") ?: ""
         val region: String = call.argument("region") ?: "us"
 
-        val appSetting = AppSettings.AppSettingsBuilder().setRegion(region).subscribePresenceForAllUsers().build()
+        val appSetting =
+            AppSettings.AppSettingsBuilder().setRegion(region).subscribePresenceForAllUsers()
+                .build()
 
         CometChat.init(context, appID, appSetting, object : CometChat.CallbackListener<String>() {
             override fun onSuccess(m: String?) {
@@ -197,75 +200,79 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     }
 
     private fun getMessageMap(message: BaseMessage?): HashMap<String, Any?>? {
-        if(message == null) return null
+        if (message == null) return null
         val map: HashMap<String, Any?> = hashMapOf(
-                "id" to message.id,
-                "muid" to message.muid,
-                "sender" to getUserMap(message.sender),
-                "receiver" to when (message.receiver) {
-                    is User -> getUserMap(message.receiver as User)
-                    is Group -> getGroupMap(message.receiver as Group)
-                    else -> null
-                },
-                "receiverUid" to message.receiverUid,
-                "type" to message.type,
-                "receiverType" to message.receiverType,
-                "category" to message.category,
-                "sentAt" to message.sentAt,
-                "deliveredAt" to message.deliveredAt,
-                "readAt" to message.readAt,
-                "metadata" to message.metadata?.toString(),
-                "readByMeAt" to message.readByMeAt,
-                "deliveredToMeAt" to message.deliveredToMeAt,
-                "deletedAt" to message.deletedAt,
-                "editedAt" to message.editedAt,
-                "deletedBy" to message.deletedBy,
-                "editedBy" to message.editedBy,
-                "updatedAt" to message.updatedAt,
-                "conversationId" to message.conversationId,
-                "parentMessageId" to message.parentMessageId,
-                "replyCount" to message.replyCount
+            "id" to message.id,
+            "muid" to message.muid,
+            "sender" to getUserMap(message.sender),
+            "receiver" to when (message.receiver) {
+                is User -> getUserMap(message.receiver as User)
+                is Group -> getGroupMap(message.receiver as Group)
+                else -> null
+            },
+            "receiverUid" to message.receiverUid,
+            "type" to message.type,
+            "receiverType" to message.receiverType,
+            "category" to message.category,
+            "sentAt" to message.sentAt,
+            "deliveredAt" to message.deliveredAt,
+            "readAt" to message.readAt,
+            "metadata" to message.metadata?.toString(),
+            "readByMeAt" to message.readByMeAt,
+            "deliveredToMeAt" to message.deliveredToMeAt,
+            "deletedAt" to message.deletedAt,
+            "editedAt" to message.editedAt,
+            "deletedBy" to message.deletedBy,
+            "editedBy" to message.editedBy,
+            "updatedAt" to message.updatedAt,
+            "conversationId" to message.conversationId,
+            "parentMessageId" to message.parentMessageId,
+            "replyCount" to message.replyCount
         )
         when (message) {
             is TextMessage -> map["text"] = message.text
-            is MediaMessage -> map.putAll(hashMapOf(
+            is MediaMessage -> map.putAll(
+                hashMapOf(
                     "caption" to message.caption,
                     "attachment" to getAttachmentMap(message.attachment)
-            ))
-            is Action -> map.putAll(hashMapOf(
+                )
+            )
+            is Action -> map.putAll(
+                hashMapOf(
                     "message" to message.message,
                     "rawData" to message.rawData,
                     "action" to message.action,
                     "oldScope" to message.oldScope,
                     "newScope" to message.newScope
-            ))
+                )
+            )
         }
         return map
     }
 
     private fun getAttachmentMap(attachment: Attachment?): HashMap<String, Any?>? {
-        if(attachment == null) return null
+        if (attachment == null) return null
         return hashMapOf(
-                "fileName" to attachment.fileName,
-                "fileExtension" to attachment.fileExtension,
-                "fileSize" to attachment.fileSize,
-                "fileMimeType" to attachment.fileMimeType,
-                "fileUrl" to attachment.fileUrl
+            "fileName" to attachment.fileName,
+            "fileExtension" to attachment.fileExtension,
+            "fileSize" to attachment.fileSize,
+            "fileMimeType" to attachment.fileMimeType,
+            "fileUrl" to attachment.fileUrl
         )
     }
 
     private fun getConversationMap(conversation: Conversation): HashMap<String, Any?> {
         return hashMapOf(
-                "conversationId" to conversation.conversationId,
-                "conversationType" to conversation.conversationType,
-                "conversationWith" to when (conversation.conversationWith) {
-                    is User -> getUserMap(conversation.conversationWith as User)
-                    is Group -> getGroupMap(conversation.conversationWith as Group)
-                    else -> null
-                },
-                "lastMessage" to getMessageMap(conversation.lastMessage),
-                "unreadMessageCount" to conversation.unreadMessageCount,
-                "updatedAt" to conversation.updatedAt
+            "conversationId" to conversation.conversationId,
+            "conversationType" to conversation.conversationType,
+            "conversationWith" to when (conversation.conversationWith) {
+                is User -> getUserMap(conversation.conversationWith as User)
+                is Group -> getGroupMap(conversation.conversationWith as Group)
+                else -> null
+            },
+            "lastMessage" to getMessageMap(conversation.lastMessage),
+            "unreadMessageCount" to conversation.unreadMessageCount,
+            "updatedAt" to conversation.updatedAt
         )
     }
 
@@ -273,45 +280,47 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         val groupMap = group.toMap()
         return hashMapOf(
-                "guid" to group.guid,
-                "name" to group.name,
-                "type" to groupMap["type"],
-                "password" to group.password,
-                "icon" to group.icon,
-                "description" to group.description,
-                "owner" to group.owner,
-                "metadata" to group.metadata?.toString(),
-                "createdAt" to group.createdAt,
-                "updatedAt" to group.updatedAt,
-                "hasJoined" to (groupMap["hasJoined"]?.toInt() == 1),
-                "joinedAt" to group.joinedAt,
-                "scope" to group.scope,
-                "membersCount" to group.membersCount,
-                "tags" to group.tags
+            "guid" to group.guid,
+            "name" to group.name,
+            "type" to groupMap["type"],
+            "password" to group.password,
+            "icon" to group.icon,
+            "description" to group.description,
+            "owner" to group.owner,
+            "metadata" to group.metadata?.toString(),
+            "createdAt" to group.createdAt,
+            "updatedAt" to group.updatedAt,
+            "hasJoined" to (groupMap["hasJoined"]?.toInt() == 1),
+            "joinedAt" to group.joinedAt,
+            "scope" to group.scope,
+            "membersCount" to group.membersCount,
+            "tags" to group.tags
         )
     }
 
     private fun getUserMap(user: User): HashMap<String, Any?> {
         return hashMapOf(
-                "uid" to user.uid,
-                "name" to user.name,
-                "avatar" to user.avatar,
-                "link" to user.link,
-                "role" to user.role,
-                "metadata" to user.metadata?.toString(),
-                "status" to user.status,
-                "statusMessage" to user.statusMessage,
-                "lastActiveAt" to user.lastActiveAt,
-                "tags" to user.tags
+            "uid" to user.uid,
+            "name" to user.name,
+            "avatar" to user.avatar,
+            "link" to user.link,
+            "role" to user.role,
+            "metadata" to user.metadata?.toString(),
+            "status" to user.status,
+            "statusMessage" to user.statusMessage,
+            "lastActiveAt" to user.lastActiveAt,
+            "tags" to user.tags
         )
     }
 
     private fun getGroupMemberMap(groupMember: GroupMember): HashMap<String, Any?> {
         val map: HashMap<String, Any?> = getUserMap(groupMember)
-        map.putAll(hashMapOf(
+        map.putAll(
+            hashMapOf(
                 "scope" to groupMember.scope,
                 "joinedAt" to groupMember.joinedAt
-        ))
+            )
+        )
         return map
     }
 
@@ -329,17 +338,19 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         if (parentMessageId > 0) mediaMessage.parentMessageId = parentMessageId
 
-        CometChat.sendMediaMessage(mediaMessage, object : CometChat.CallbackListener<MediaMessage>() {
-            override fun onSuccess(message: MediaMessage) {
-                Log.d("sendMediaMessage", "Media message sent successfully: $message")
-                result.success(getMessageMap(message))
-            }
+        CometChat.sendMediaMessage(
+            mediaMessage,
+            object : CometChat.CallbackListener<MediaMessage>() {
+                override fun onSuccess(message: MediaMessage) {
+                    Log.d("sendMediaMessage", "Media message sent successfully: $message")
+                    result.success(getMessageMap(message))
+                }
 
-            override fun onError(e: CometChatException) {
-                Log.e("sendMediaMessage", "Message sending failed with exception: " + e.message)
-                result.error(e.code, e.message, e.details)
-            }
-        })
+                override fun onError(e: CometChatException) {
+                    Log.e("sendMediaMessage", "Message sending failed with exception: " + e.message)
+                    result.error(e.code, e.message, e.details)
+                }
+            })
     }
 
 //    private fun sendCustomMessage(call: MethodCall, result: Result) {
@@ -359,21 +370,29 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 //    }
 
     private fun addMessageListener(result: EventChannel.EventSink) {
-        CometChat.addMessageListener("space.cogitare.cometchat", object : CometChat.MessageListener() {
-            override fun onTextMessageReceived(message: TextMessage) {
-                Log.d("receiveMessage", "Message received successfully: ${message.text} sender: ${message.sender?.uid} receiver: ${message.receiverUid}")
-                result.success(getMessageMap(message))
-            }
+        CometChat.addMessageListener(
+            "space.cogitare.cometchat",
+            object : CometChat.MessageListener() {
+                override fun onTextMessageReceived(message: TextMessage) {
+                    Log.d(
+                        "receiveMessage",
+                        "Message received successfully: ${message.text} sender: ${message.sender?.uid} receiver: ${message.receiverUid}"
+                    )
+                    result.success(getMessageMap(message))
+                }
 
-            override fun onMediaMessageReceived(message: MediaMessage) {
-                message.caption
-                Log.d("receiveMessage", "Message received successfully: ${message.attachment.fileUrl} sender: ${message.sender?.uid} receiver: ${message.receiverUid}")
-                result.success(getMessageMap(message))
-            }
+                override fun onMediaMessageReceived(message: MediaMessage) {
+                    message.caption
+                    Log.d(
+                        "receiveMessage",
+                        "Message received successfully: ${message.attachment.fileUrl} sender: ${message.sender?.uid} receiver: ${message.receiverUid}"
+                    )
+                    result.success(getMessageMap(message))
+                }
 //            override fun onCustomMessageReceived(message: CustomMessage?) {
 //            }
 
-        })
+            })
     }
 
     private fun fetchPreviousMessages(call: MethodCall, result: Result) {
@@ -382,7 +401,10 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val guid: String = call.argument("guid") ?: ""
         val searchTerm: String = call.argument("searchTerm") ?: ""
         val messageId: Int = call.argument("messageId") ?: -1
-        var builder: MessagesRequest.MessagesRequestBuilder = MessagesRequest.MessagesRequestBuilder()
+        var builder: MessagesRequest.MessagesRequestBuilder =
+            MessagesRequest.MessagesRequestBuilder().setCategories(
+                listOf("message")
+            )
 
         if (limit > 0) builder = builder.setLimit(limit)
 
@@ -400,13 +422,16 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         messagesRequest.fetchPrevious(object : CometChat.CallbackListener<List<BaseMessage>>() {
             override fun onSuccess(messages: List<BaseMessage>) {
-                Log.d("fetchPreviousMessages", "Fetch messages successful: ${messages.size}")
+//                Log.d("fetchPreviousMessages", "Fetch messages successful: ${messages.size}")
                 val list = messages.map { e -> getMessageMap(e) }
                 result.success(list)
             }
 
             override fun onError(e: CometChatException) {
-                Log.d("fetchPreviousMessages", "Message fetching failed with exception: " + e.message)
+                Log.d(
+                    "fetchPreviousMessages",
+                    "Message fetching failed with exception: " + e.message
+                )
                 result.error(e.code, e.message, e.details)
             }
         })
@@ -416,7 +441,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun fetchNextConversations(call: MethodCall, result: Result) {
         val limit: Int = call.argument("limit") ?: -1
         val type: String? = call.argument("type")
-        var builder: ConversationsRequest.ConversationsRequestBuilder = ConversationsRequest.ConversationsRequestBuilder()
+        var builder: ConversationsRequest.ConversationsRequestBuilder =
+            ConversationsRequest.ConversationsRequestBuilder()
 
         if (limit > 0) builder = builder.setLimit(limit)
 
@@ -425,7 +451,10 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val conversationRequest: ConversationsRequest = builder.build()
         conversationRequest.fetchNext(object : CometChat.CallbackListener<List<Conversation>>() {
             override fun onSuccess(conversations: List<Conversation>) {
-                Log.d("fetchNextConversations", "Fetch conversations successful: ${conversations.size}")
+                Log.d(
+                    "fetchNextConversations",
+                    "Fetch conversations successful: ${conversations.size}"
+                )
                 val list = conversations.map { e -> getConversationMap(e) }
                 result.success(list)
             }
@@ -484,17 +513,21 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val groupType: String = call.argument("groupType") ?: ""
         val password: String = call.argument("password") ?: ""
 
-        CometChat.joinGroup(guid, groupType, password, object : CometChat.CallbackListener<Group>() {
-            override fun onSuccess(group: Group) {
-                Log.d("joinGroup", "Group joined successfully: $group")
-                result.success(getGroupMap(group))
-            }
+        CometChat.joinGroup(
+            guid,
+            groupType,
+            password,
+            object : CometChat.CallbackListener<Group>() {
+                override fun onSuccess(group: Group) {
+                    Log.d("joinGroup", "Group joined successfully: $group")
+                    result.success(getGroupMap(group))
+                }
 
-            override fun onError(e: CometChatException) {
-                Log.d("joinGroup", "Group creation failed with exception: " + e.message)
-                result.error(e.code, e.message, e.details)
-            }
-        })
+                override fun onError(e: CometChatException) {
+                    Log.d("joinGroup", "Group creation failed with exception: " + e.message)
+                    result.error(e.code, e.message, e.details)
+                }
+            })
     }
 
     private fun leaveGroup(call: MethodCall, result: Result) {
@@ -532,7 +565,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun fetchNextGroupMembers(call: MethodCall, result: Result) {
         val guid: String = call.argument("guid") ?: ""
         val limit: Int = call.argument("limit") ?: -1
-        var builder: GroupMembersRequest.GroupMembersRequestBuilder = GroupMembersRequest.GroupMembersRequestBuilder(guid)
+        var builder: GroupMembersRequest.GroupMembersRequestBuilder =
+            GroupMembersRequest.GroupMembersRequestBuilder(guid)
 
         if (limit > 0) builder = builder.setLimit(limit)
 
@@ -540,13 +574,19 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         groupMembersRequest.fetchNext(object : CometChat.CallbackListener<List<GroupMember>>() {
             override fun onSuccess(members: List<GroupMember>) {
-                Log.d("fetchNextGroupMembers", "Group Member list fetched successfully: " + members.size)
+                Log.d(
+                    "fetchNextGroupMembers",
+                    "Group Member list fetched successfully: " + members.size
+                )
                 val list = members.map { e -> getGroupMemberMap(e) }
                 result.success(list)
             }
 
             override fun onError(e: CometChatException) {
-                Log.d("fetchNextGroupMembers", "Group Member list fetching failed with exception: " + e.message)
+                Log.d(
+                    "fetchNextGroupMembers",
+                    "Group Member list fetching failed with exception: " + e.message
+                )
                 result.error(e.code, e.message, e.details)
             }
         })
@@ -578,21 +618,24 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
     private fun registerTokenForPushNotification(call: MethodCall, result: Result) {
         val token: String = call.argument("token") ?: ""
-        CometChat.registerTokenForPushNotification(token, object : CometChat.CallbackListener<String?>() {
-            override fun onSuccess(s: String?) {
-                Log.e("onSuccessPN: ", s ?: "Done")
-                result.success(null)
-            }
+        CometChat.registerTokenForPushNotification(
+            token,
+            object : CometChat.CallbackListener<String?>() {
+                override fun onSuccess(s: String?) {
+                    Log.e("onSuccessPN: ", s ?: "Done")
+                    result.success(null)
+                }
 
-            override fun onError(e: CometChatException) {
-                Log.e("onErrorPN: ", "Token save failed: " + e.message)
-                result.error(e.code, e.message, e.details)
-            }
-        })
+                override fun onError(e: CometChatException) {
+                    Log.e("onErrorPN: ", "Token save failed: " + e.message)
+                    result.error(e.code, e.message, e.details)
+                }
+            })
     }
 
     private fun getUnreadMessageCount(result: Result) {
-        CometChat.getUnreadMessageCount(object : CometChat.CallbackListener<HashMap<String, HashMap<String, Int>>>() {
+        CometChat.getUnreadMessageCount(object :
+            CometChat.CallbackListener<HashMap<String, HashMap<String, Int>>>() {
             override fun onSuccess(counts: HashMap<String, HashMap<String, Int>>?) {
                 Log.d("getUnreadMessageCount", "onSuccess: $counts")
                 result.success(counts)
@@ -623,16 +666,21 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         Log.d("callExtension", body.toString())
 
-        CometChat.callExtension(slug, requestType, endPoint, body, object : CometChat.CallbackListener<JSONObject>() {
-            override fun onSuccess(response: JSONObject) {
-                Log.d("callExtension", "onSuccess: ${response.toString()}")
-                result.success(response.toString())
-            }
+        CometChat.callExtension(
+            slug,
+            requestType,
+            endPoint,
+            body,
+            object : CometChat.CallbackListener<JSONObject>() {
+                override fun onSuccess(response: JSONObject) {
+                    Log.d("callExtension", "onSuccess: ${response.toString()}")
+                    result.success(response.toString())
+                }
 
-            override fun onError(e: CometChatException) {
-                Log.d("callExtension", "onError: ${e.message}")
-                result.error(e.code, e.message, e.details)
-            }
-        })
+                override fun onError(e: CometChatException) {
+                    Log.d("callExtension", "onError: ${e.message}")
+                    result.error(e.code, e.message, e.details)
+                }
+            })
     }
 }

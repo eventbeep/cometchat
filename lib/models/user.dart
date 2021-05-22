@@ -32,7 +32,7 @@ class User extends AppEntity {
   });
 
   factory User.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) throw ArgumentError('The type of user map is null');
 
     // print('User: $map');
 

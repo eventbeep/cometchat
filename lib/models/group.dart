@@ -32,7 +32,7 @@ class Group extends AppEntity {
   });
 
   factory Group.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) throw ArgumentError('The type of group map is null');
 
     return Group(
       guid: map['guid'],

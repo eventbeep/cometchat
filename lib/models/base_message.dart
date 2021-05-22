@@ -55,7 +55,7 @@ class BaseMessage {
   });
 
   factory BaseMessage.fromMap(dynamic map) {
-    if (map == null) throw ArgumentError('The type of map is null');
+    if (map == null) throw ArgumentError('The type of basemessage map is null');
     // final hashMap = Map.from(map);
     // hashMap.remove('receiver');
     // hashMap.remove('sender');
