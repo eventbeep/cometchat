@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:logger/logger.dart';
+
 import 'app_entity.dart';
 import 'base_message.dart';
 import 'group.dart';
@@ -11,8 +13,8 @@ class TextMessage extends BaseMessage {
     required this.text,
     required int id,
     required String? muid,
-    required User sender,
-    required AppEntity receiver,
+    required User? sender,
+    AppEntity? receiver,
     required String receiverUid,
     required String type,
     required String receiverType,
@@ -59,15 +61,19 @@ class TextMessage extends BaseMessage {
   factory TextMessage.fromMap(dynamic map) {
     if (map == null) throw ArgumentError('The type of textmessage map is null');
 
-    final appEntity = (map['receiverType'] == 'user')
-        ? User.fromMap(map['receiver'])
-        : Group.fromMap(map['receiver']);
+    Logger().d(map);
+
+    final appEntity = (map['receiver'] == null)
+        ? null
+        : (map['receiverType'] == 'user')
+            ? User.fromMap(map['receiver'])
+            : Group.fromMap(map['receiver']);
 
     return TextMessage(
       text: map['text'] ?? '',
       id: map['id'],
       muid: map['muid'],
-      sender: User.fromMap(map['sender']),
+      sender: map['sender'] == null ? null : User.fromMap(map['sender']),
       receiver: appEntity,
       receiverUid: map['receiverUid'],
       type: map['type'],

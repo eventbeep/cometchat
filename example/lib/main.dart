@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     cometChat = CometChat(
-      '',
-      authKey: '',
+      '299805850545775',
+      authKey: 'af235bbb3e1c01836a30bd8411956a1bd83b22cd',
       region: 'eu',
     );
   }
@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             }
-            final list = snapshot.data;
+            final list = snapshot.data ?? [];
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (context, index) {
@@ -89,12 +89,18 @@ class _MyAppState extends State<MyApp> {
   Future<List<Conversation>> _initAndGetConvos() async {
     await cometChat.init();
     final user = await cometChat.getLoggedInUser();
+    print('Logged in ${user?.name}');
     if (user == null) {
-      await cometChat.loginWithApiKey('superhero2');
+      await cometChat.loginWithApiKey('gesrpaizituc5c7atmgjrja0xns2');
     }
-    // await cometChat.sendMessage(TextMessage(
-    //     'supergroup', CometReceiverType.group, 'Hello super heroes'));
+    print('Logged in ');
+    // await cometChat.sendMessage(
+    //   'Hello super heroes',
+    //   'vji5bpo3avz935floys1ef7dnia3',
+    //   CometReceiverType.user,
+    // );
     return cometChat.fetchNextConversations();
+    // return [];
   }
 }
 
@@ -168,13 +174,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> initStuff() async {
-    final l = widget.conversation.conversationType == CometReceiverType.user
-        ? await widget.cometChat.fetchPreviousMessages(
-            uid: (widget.conversation.conversationWith as User).uid)
-        : await widget.cometChat.fetchPreviousMessages(
-            guid: (widget.conversation.conversationWith as Group).guid);
+    // final l = widget.conversation.conversationType == CometReceiverType.user
+    //     ? await widget.cometChat.fetchPreviousMessages(
+    //         uid: (widget.conversation.conversationWith as User).uid)
+    //     : await widget.cometChat.fetchPreviousMessages(
+    //         guid: (widget.conversation.conversationWith as Group).guid);
     setState(() {
-      list = List.from(l);
+      list = List.from([]);
     });
   }
 }

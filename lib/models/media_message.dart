@@ -15,8 +15,8 @@ class MediaMessage extends BaseMessage {
     required this.attachment,
     required int id,
     required String? muid,
-    required User sender,
-    required AppEntity receiver,
+    required User? sender,
+    AppEntity? receiver,
     required String receiverUid,
     required String type,
     required String receiverType,
@@ -64,9 +64,11 @@ class MediaMessage extends BaseMessage {
     if (map == null)
       throw ArgumentError('The type of mediamessage map is null');
 
-    final appEntity = (map['receiverType'] == 'user')
-        ? User.fromMap(map['receiver'])
-        : Group.fromMap(map['receiver']);
+    final appEntity = (map['receiver'] == null)
+        ? null
+        : (map['receiverType'] == 'user')
+            ? User.fromMap(map['receiver'])
+            : Group.fromMap(map['receiver']);
 
     return MediaMessage(
       caption: map['caption'] ?? '',
@@ -75,7 +77,7 @@ class MediaMessage extends BaseMessage {
           : Attachment.fromMap(map['attachment']),
       id: map['id'],
       muid: map['muid'],
-      sender: User.fromMap(map['sender']),
+      sender: map['sender'] == null ? null : User.fromMap(map['sender']),
       receiver: appEntity,
       receiverUid: map['receiverUid'],
       type: map['type'],

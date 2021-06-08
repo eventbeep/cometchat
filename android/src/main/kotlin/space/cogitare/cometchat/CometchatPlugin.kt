@@ -277,7 +277,6 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     }
 
     private fun getGroupMap(group: Group): HashMap<String, Any?> {
-
         val groupMap = group.toMap()
         return hashMapOf(
             "guid" to group.guid,

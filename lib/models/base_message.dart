@@ -8,8 +8,8 @@ import 'app_entity.dart';
 class BaseMessage {
   final int id;
   final String? muid;
-  final User sender;
-  final AppEntity receiver;
+  final User? sender;
+  final AppEntity? receiver;
   final String receiverUid;
   final String type;
   final String receiverType;
@@ -33,7 +33,7 @@ class BaseMessage {
     required this.id,
     required this.muid,
     required this.sender,
-    required this.receiver,
+    this.receiver,
     required this.receiverUid,
     required this.type,
     required this.receiverType,

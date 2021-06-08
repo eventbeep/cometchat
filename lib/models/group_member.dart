@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:logger/logger.dart';
+
 import 'user.dart';
 
 class GroupMember extends User {
@@ -38,6 +40,8 @@ class GroupMember extends User {
 
   factory GroupMember.fromMap(dynamic map) {
     if (map == null) throw ArgumentError('The type of groupmember map is null');
+
+    Logger().d(map);
 
     return GroupMember(
       scope: map['scope'] ?? '',

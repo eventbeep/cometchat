@@ -20,7 +20,7 @@ class CometChat {
 
   CometChat(
     this.appId, {
-    this.authKey,
+    @deprecated this.authKey,
     this.region = 'us',
   });
 
@@ -116,6 +116,7 @@ class CometChat {
         'messageText': messageText,
         'parentMessageId': parentMessageId,
       });
+
       final textMessage = TextMessage.fromMap(result);
       return textMessage;
     } catch (e) {
