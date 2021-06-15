@@ -388,6 +388,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     )
                     result.success(getMessageMap(message))
                 }
+                override fun onMessageDeleted(message: BaseMessage) {
+                    Log.d(
+                        "deleteMessage",
+                        "Message deleted successfully"
+                    )
+                    result.success(getMessageMap(message))
+                }
 //            override fun onCustomMessageReceived(message: CustomMessage?) {
 //            }
 
