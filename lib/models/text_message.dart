@@ -61,7 +61,7 @@ class TextMessage extends BaseMessage {
   factory TextMessage.fromMap(dynamic map) {
     if (map == null) throw ArgumentError('The type of textmessage map is null');
 
-    Logger().d(map);
+    // Logger().d(map);
 
     final appEntity = (map['receiver'] == null)
         ? null
