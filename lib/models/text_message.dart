@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:logger/logger.dart';
-
 import 'app_entity.dart';
 import 'base_message.dart';
 import 'group.dart';

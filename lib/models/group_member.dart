@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:logger/logger.dart';
-
 import 'user.dart';
 
 class GroupMember extends User {
