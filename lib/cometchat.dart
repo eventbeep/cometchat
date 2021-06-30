@@ -284,15 +284,12 @@ class CometChat {
     }
   }
 
-  Future<List<GroupMember>?> fetchNextGroupMembers(
-    String guid, {
-    int? limit,
-  }) async {
+  Future<List<GroupMember>> fetchNextGroupMembers(String guid,
+      {int? limit, String? keyword}) async {
+    print("$guid,$keyword ");
     try {
-      final result = await _channel.invokeMethod('fetchNextGroupMembers', {
-        'guid': guid,
-        'limit': limit,
-      });
+      final result = await _channel.invokeMethod('fetchNextGroupMembers',
+          {'guid': guid, 'limit': limit, 'keyword': keyword});
       return result.map<GroupMember>((e) => GroupMember.fromMap(e)).toList();
     } catch (e) {
       throw e;
