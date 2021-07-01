@@ -388,6 +388,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     )
                     result.success(getMessageMap(message))
                 }
+
                 override fun onMessageDeleted(message: BaseMessage) {
                     Log.d(
                         "deleteMessage",
@@ -571,11 +572,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun fetchNextGroupMembers(call: MethodCall, result: Result) {
         val guid: String = call.argument("guid") ?: ""
         val limit: Int = call.argument("limit") ?: -1
+        val keyword: String = call.argument("keyword") ?: ""
         var builder: GroupMembersRequest.GroupMembersRequestBuilder =
             GroupMembersRequest.GroupMembersRequestBuilder(guid)
 
         if (limit > 0) builder = builder.setLimit(limit)
 
+        if (keyword.isNotEmpty()) builder = builder.setSearchKeyword(keyword)
         val groupMembersRequest: GroupMembersRequest = builder.build()
 
         groupMembersRequest.fetchNext(object : CometChat.CallbackListener<List<GroupMember>>() {
