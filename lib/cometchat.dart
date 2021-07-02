@@ -290,7 +290,6 @@ class CometChat {
     try {
       final result = await _channel.invokeMethod('fetchNextGroupMembers',
           {'guid': guid, 'limit': limit, 'keyword': keyword});
-      print(result);
       return result.map<GroupMember>((e) => GroupMember.fromMap(e)).toList();
     } catch (e) {
       throw e;
