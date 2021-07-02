@@ -52,6 +52,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 //            "sendCustomMessage" -> sendCustomMessage(call, result)
             "fetchPreviousMessages" -> fetchPreviousMessages(call, result)
             "fetchNextConversations" -> fetchNextConversations(call, result)
+            "getConversation" -> getConversation(call, result)
 //            "getConversationFromMessage" -> getConversationFromMessage(call, result)
             "deleteMessage" -> deleteMessage(call, result)
             "createGroup" -> createGroup(call, result)
@@ -468,6 +469,21 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
             override fun onError(e: CometChatException) {
                 Log.e("fetchNextConversations", "Failed to fetch conversations: " + e.message)
+                result.error(e.code, e.message, e.details)
+            }
+        })
+    }
+
+    private fun getConversation(call: MethodCall, result: Result) {
+        val conversationWith: String = call.argument("conversationWith") ?: ""
+        val conversationType: String = call.argument("conversationType") ?: ""
+
+        CometChat.getConversation(conversationWith, conversationType, object: CometChat.CallbackListener<Conversation>(){
+            override fun onSuccess(conversation: Conversation) {
+                result.success(getConversationMap(conversation))
+            }
+            override fun onError(e: CometChatException) {
+                Log.e("getConversation", "Failed to fetch conversation: " + e.message)
                 result.error(e.code, e.message, e.details)
             }
         })

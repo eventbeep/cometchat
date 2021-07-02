@@ -203,6 +203,21 @@ class CometChat {
     }
   }
 
+  Future<Conversation> getConversation(
+    String conversationWith,
+    String conversationType,
+  ) async {
+    try {
+      final result = await _channel.invokeMethod('getConversation', {
+        'conversationWith': conversationWith,
+        'conversationType': conversationType,
+      });
+      return Conversation.fromMap(result);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<void> deleteMessage(int messageId) async {
     try {
       await _channel.invokeMethod('deleteMessage', {
