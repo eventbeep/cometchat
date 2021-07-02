@@ -336,7 +336,7 @@ class CometChat {
     String slug,
     String requestType,
     String endPoint,
-    Map<String, dynamic> body,
+    Map<String, dynamic>? body,
   ) async {
     try {
       final result = await _channel.invokeMethod('callExtension', {
