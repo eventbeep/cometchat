@@ -290,6 +290,7 @@ class CometChat {
     try {
       final result = await _channel.invokeMethod('fetchNextGroupMembers',
           {'guid': guid, 'limit': limit, 'keyword': keyword});
+      print(result);
       return result.map<GroupMember>((e) => GroupMember.fromMap(e)).toList();
     } catch (e) {
       throw e;
@@ -336,7 +337,7 @@ class CometChat {
     String slug,
     String requestType,
     String endPoint,
-    Map<String, dynamic> body,
+    Map<String, dynamic>? body,
   ) async {
     try {
       final result = await _channel.invokeMethod('callExtension', {

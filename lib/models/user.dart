@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'app_entity.dart';
 
 class User extends AppEntity {
-  final String? uid;
-  final String? name;
+  final String uid;
+  final String name;
   final String? avatar;
   final String? link;
-  final String? role;
-  final String? status;
+  final String role;
+  final String status;
   final String? statusMessage;
-  final DateTime? lastActiveAt;
-  final List<String>? tags;
+  final DateTime lastActiveAt;
+  final List<String> tags;
   final bool? hasBlockedMe;
   final bool? blockedByMe;
-  final Map<String, dynamic>? metadata;
+  final Map<String, dynamic> metadata;
 
   User({
     required this.uid,
