@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.NonNull
 import com.cometchat.pro.core.*
+import com.cometchat.pro.core.CometChat.CallbackListener
 import com.cometchat.pro.exceptions.CometChatException
 import com.cometchat.pro.models.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -47,6 +48,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "loginWithAuthToken" -> loginWithAuthToken(call, result)
             "logout" -> logout(result)
             "getLoggedInUser" -> getLoggedInUser(result)
+            "getUser" -> getUser(call, result)
             "sendMessage" -> sendMessage(call, result)
             "sendMediaMessage" -> sendMediaMessage(call, result)
 //            "sendCustomMessage" -> sendCustomMessage(call, result)
@@ -79,6 +81,23 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
     override fun onCancel(arguments: Any?) {
         Log.e("onCancel", "event onCancel called")
+    }
+
+    private fun getUser(call: MethodCall, result: Result) {
+        val uid: String = call.argument<String>("uid").toString()
+
+        CometChat.getUser(uid, object : CallbackListener<User?>() {
+            override fun onSuccess(user: User?) {
+                //Your Success Code
+                result.success(user?.let { getUserMap(user) })
+            }
+
+            override fun onError(e: CometChatException) {
+                result.error(e.code,e.message,e.details)
+            }
+        })
+
+
     }
 
     // CometChat functions
