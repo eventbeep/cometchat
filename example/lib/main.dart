@@ -52,6 +52,7 @@ class _MyAppState extends State<MyApp> {
                   final e = list[index].conversationWith as User;
                   return ListTile(
                     title: Text(e.name),
+                    onLongPress: () => cometChat.blockUser([e.uid]),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(

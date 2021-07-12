@@ -64,6 +64,9 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "getUnreadMessageCount" -> getUnreadMessageCount(result)
             "markAsRead" -> markAsRead(call, result)
             "callExtension" -> callExtension(call, result)
+            "blockUsers" -> blockUsers(call, result)
+
+
             else -> result.notImplemented()
         }
     }
@@ -388,6 +391,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     )
                     result.success(getMessageMap(message))
                 }
+
                 override fun onMessageDeleted(message: BaseMessage) {
                     Log.d(
                         "deleteMessage",
@@ -688,5 +692,22 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     result.error(e.code, e.message, e.details)
                 }
             })
+    }
+
+    private fun blockUsers(call: MethodCall, result: Result) {
+        val uids: List<String> = call.argument("uids")!!
+        CometChat.blockUsers(uids, object : CometChat.CallbackListener<HashMap<String, String>>() {
+
+            override fun onSuccess(resultMap: HashMap<String, String>) {
+                result.success(resultMap)
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d("blockUser", "onError: ${e.message}")
+                result.error(e.code, e.message, e.details)
+            }
+        })
+
+
     }
 }
