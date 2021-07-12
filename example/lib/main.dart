@@ -2,6 +2,7 @@ import 'package:cometchat/cometchat.dart';
 import 'package:cometchat/models/base_message.dart';
 import 'package:cometchat/models/conversation.dart';
 import 'package:cometchat/models/group.dart';
+import 'package:cometchat/models/group_member.dart';
 import 'package:cometchat/models/text_message.dart';
 import 'package:cometchat/models/action.dart' as c;
 import 'package:cometchat/models/user.dart';
@@ -52,7 +53,11 @@ class _MyAppState extends State<MyApp> {
                   final e = list[index].conversationWith as User;
                   return ListTile(
                     title: Text(e.name),
-                    onLongPress: () => cometChat.blockUser([e.uid]),
+                    onLongPress: () async {
+                      User user = await cometChat.getUser(e.uid);
+                      print("from get user ${user.name}");
+                      print(e.name);
+                    },
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -134,42 +139,54 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (_, index) {
-                var text;
-                if (list[index] is TextMessage) {
-                  text = (list[index] as TextMessage).text;
-                } else if (list[index] is c.Action) {
-                  text = (list[index] as c.Action).message;
-                }
-                return ListTile(
-                  title: Text(text ?? 'Empty'),
-                );
-              },
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (widget.conversation.conversationType == "group")
+              TextButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => MembersPage(
+                                cometChat: widget.cometChat,
+                                conversation: widget.conversation,
+                              ))),
+                  child: Text("Get members by search")),
+            Expanded(
+              child: ListView.builder(
+                itemCount: list.length,
+                itemBuilder: (_, index) {
+                  var text;
+                  if (list[index] is TextMessage) {
+                    text = (list[index] as TextMessage).text;
+                  } else if (list[index] is c.Action) {
+                    text = (list[index] as c.Action).message;
+                  }
+                  return ListTile(
+                    title: Text(text ?? 'Empty'),
+                  );
+                },
+              ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onChanged: (text) => setState(() => messageText = text),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (text) => setState(() => messageText = text),
+                  ),
                 ),
-              ),
-              FloatingActionButton(
-                child: Icon(Icons.send),
-                onPressed: () => widget.cometChat.sendMessage(
-                  messageText,
-                  (widget.conversation.conversationWith as User).uid,
-                  CometReceiverType.user,
+                FloatingActionButton(
+                  child: Icon(Icons.send),
+                  onPressed: () => widget.cometChat.sendMessage(
+                    messageText,
+                    (widget.conversation.conversationWith as User).uid,
+                    CometReceiverType.user,
+                  ),
                 ),
-              ),
-            ],
-          )
-        ],
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -183,5 +200,51 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
       list = List.from([]);
     });
+  }
+}
+
+class MembersPage extends StatefulWidget {
+  const MembersPage({Key key, this.conversation, this.cometChat})
+      : super(key: key);
+
+  final Conversation conversation;
+  final CometChat cometChat;
+
+  @override
+  _MembersPageState createState() => _MembersPageState();
+}
+
+class _MembersPageState extends State<MembersPage> {
+  List<GroupMember> result = [];
+  getMembers(String keyword) async {
+    result = await widget.cometChat.fetchNextGroupMembers(
+        (widget.conversation.conversationWith as Group).guid,
+        keyword: keyword ?? "");
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Container(
+          color: Colors.white,
+          child: TextField(
+            onChanged: (val) async {
+              await getMembers(val);
+            },
+          ),
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: result.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.all(8),
+            child: Text(result[index].name),
+          );
+        },
+      ),
+    );
   }
 }

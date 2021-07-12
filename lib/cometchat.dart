@@ -92,6 +92,17 @@ class CometChat {
     }
   }
 
+  Future<User?> getUser(String uid) async {
+    try {
+      final result = await _channel.invokeMethod('getUser', {'uid': uid});
+
+      final user = User.fromMap(result);
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<User?> getLoggedInUser() async {
     try {
       final result = await _channel.invokeMethod('getLoggedInUser');
@@ -203,6 +214,21 @@ class CometChat {
     }
   }
 
+  Future<Conversation> getConversation(
+    String conversationWith,
+    String conversationType,
+  ) async {
+    try {
+      final result = await _channel.invokeMethod('getConversation', {
+        'conversationWith': conversationWith,
+        'conversationType': conversationType,
+      });
+      return Conversation.fromMap(result);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<void> deleteMessage(int messageId) async {
     try {
       await _channel.invokeMethod('deleteMessage', {
@@ -284,15 +310,12 @@ class CometChat {
     }
   }
 
-  Future<List<GroupMember>?> fetchNextGroupMembers(
-    String guid, {
-    int? limit,
-  }) async {
+  Future<List<GroupMember>> fetchNextGroupMembers(String guid,
+      {int? limit, String? keyword}) async {
+    print("$guid,$keyword ");
     try {
-      final result = await _channel.invokeMethod('fetchNextGroupMembers', {
-        'guid': guid,
-        'limit': limit,
-      });
+      final result = await _channel.invokeMethod('fetchNextGroupMembers',
+          {'guid': guid, 'limit': limit, 'keyword': keyword});
       return result.map<GroupMember>((e) => GroupMember.fromMap(e)).toList();
     } catch (e) {
       throw e;
@@ -339,7 +362,7 @@ class CometChat {
     String slug,
     String requestType,
     String endPoint,
-    Map<String, dynamic> body,
+    Map<String, dynamic>? body,
   ) async {
     try {
       final result = await _channel.invokeMethod('callExtension', {

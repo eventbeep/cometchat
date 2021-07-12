@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.NonNull
 import com.cometchat.pro.core.*
+import com.cometchat.pro.core.CometChat.CallbackListener
 import com.cometchat.pro.exceptions.CometChatException
 import com.cometchat.pro.models.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -47,11 +48,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "loginWithAuthToken" -> loginWithAuthToken(call, result)
             "logout" -> logout(result)
             "getLoggedInUser" -> getLoggedInUser(result)
+            "getUser" -> getUser(call, result)
             "sendMessage" -> sendMessage(call, result)
             "sendMediaMessage" -> sendMediaMessage(call, result)
 //            "sendCustomMessage" -> sendCustomMessage(call, result)
             "fetchPreviousMessages" -> fetchPreviousMessages(call, result)
             "fetchNextConversations" -> fetchNextConversations(call, result)
+            "getConversation" -> getConversation(call, result)
 //            "getConversationFromMessage" -> getConversationFromMessage(call, result)
             "deleteMessage" -> deleteMessage(call, result)
             "createGroup" -> createGroup(call, result)
@@ -81,6 +84,23 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
     override fun onCancel(arguments: Any?) {
         Log.e("onCancel", "event onCancel called")
+    }
+
+    private fun getUser(call: MethodCall, result: Result) {
+        val uid: String = call.argument<String>("uid").toString()
+
+        CometChat.getUser(uid, object : CallbackListener<User?>() {
+            override fun onSuccess(user: User?) {
+                //Your Success Code
+                result.success(user?.let { getUserMap(user) })
+            }
+
+            override fun onError(e: CometChatException) {
+                result.error(e.code,e.message,e.details)
+            }
+        })
+
+
     }
 
     // CometChat functions
@@ -476,6 +496,21 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         })
     }
 
+    private fun getConversation(call: MethodCall, result: Result) {
+        val conversationWith: String = call.argument("conversationWith") ?: ""
+        val conversationType: String = call.argument("conversationType") ?: ""
+
+        CometChat.getConversation(conversationWith, conversationType, object: CometChat.CallbackListener<Conversation>(){
+            override fun onSuccess(conversation: Conversation) {
+                result.success(getConversationMap(conversation))
+            }
+            override fun onError(e: CometChatException) {
+                Log.e("getConversation", "Failed to fetch conversation: " + e.message)
+                result.error(e.code, e.message, e.details)
+            }
+        })
+    }
+
 //    private fun getConversationFromMessage(call: MethodCall, result: Result) {
 //        var message: TextMessage = TextMessage.fromJson(call.argument("message"))
 //        CometChatHelper.getConversationFromMessage()
@@ -575,11 +610,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun fetchNextGroupMembers(call: MethodCall, result: Result) {
         val guid: String = call.argument("guid") ?: ""
         val limit: Int = call.argument("limit") ?: -1
+        val keyword: String = call.argument("keyword") ?: ""
         var builder: GroupMembersRequest.GroupMembersRequestBuilder =
             GroupMembersRequest.GroupMembersRequestBuilder(guid)
 
         if (limit > 0) builder = builder.setLimit(limit)
 
+        if (keyword.isNotEmpty()) builder = builder.setSearchKeyword(keyword)
         val groupMembersRequest: GroupMembersRequest = builder.build()
 
         groupMembersRequest.fetchNext(object : CometChat.CallbackListener<List<GroupMember>>() {

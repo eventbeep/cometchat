@@ -5,15 +5,15 @@ import 'app_entity.dart';
 class User extends AppEntity {
   final String uid;
   final String name;
-  final String avatar;
-  final String link;
+  final String? avatar;
+  final String? link;
   final String role;
   final String status;
-  final String statusMessage;
+  final String? statusMessage;
   final DateTime lastActiveAt;
   final List<String> tags;
-  final bool hasBlockedMe;
-  final bool blockedByMe;
+  final bool? hasBlockedMe;
+  final bool? blockedByMe;
   final Map<String, dynamic> metadata;
 
   User({
