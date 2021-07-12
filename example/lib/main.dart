@@ -37,6 +37,44 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          actions: [
+            Builder(
+              builder: (context) => IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlockedUsers(
+                            cometChat: cometChat,
+                          ),
+                        ));
+                  },
+                  icon: Icon(Icons.block)),
+            ),
+            // PopupMenuButton(
+            //   onSelected: (value) {
+            //     switch (value) {
+            //       case 0:
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => BlockedUsers(),
+            //           ),
+            //         );
+
+            //         break;
+            //       default:
+            //         Navigator.pop(context);
+            //     }
+            //   },
+            //   itemBuilder: (context) => [
+            //     PopupMenuItem(
+            //       child: Text("Blocked Users"),
+            //       value: 0,
+            //     )
+            //   ],
+            // )
+          ],
         ),
         body: FutureBuilder<List<Conversation>>(
           future: _initAndGetConvos(),
@@ -237,14 +275,55 @@ class _MembersPageState extends State<MembersPage> {
         ),
       ),
       body: ListView.builder(
-        itemCount: result.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.all(8),
-            child: Text(result[index].name),
-          );
+          itemCount: result.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(result[index].name),
+            );
+          }),
+    );
+  }
+}
+
+class BlockedUsers extends StatefulWidget {
+  const BlockedUsers({Key key, this.cometChat}) : super(key: key);
+  final CometChat cometChat;
+
+  @override
+  _BlockedUsersState createState() => _BlockedUsersState();
+}
+
+class _BlockedUsersState extends State<BlockedUsers> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder<List<User>>(
+        future: _fetchBlockedUsers(),
+        builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return Center(child: CircularProgressIndicator());
+          // }
+          print(snapshot.data);
+          final list = snapshot.data ?? [];
+          return ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final e = list[index];
+                return ListTile(
+                  title: Text(e.name),
+                  onLongPress: () => widget.cometChat.unblockUser([e.uid]),
+                );
+              });
         },
       ),
     );
+  }
+
+  Future<List<User>> _fetchBlockedUsers() async {
+    final cometChat = widget.cometChat;
+    final blocked = await cometChat.fetchBlockedUsers();
+    print(blocked);
+    return blocked;
   }
 }

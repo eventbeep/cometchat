@@ -68,6 +68,8 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "markAsRead" -> markAsRead(call, result)
             "callExtension" -> callExtension(call, result)
             "blockUsers" -> blockUsers(call, result)
+            "unblockUsers" -> unblockUsers(call, result)
+            "fetchBlockedUsers" -> fetchBlockedUsers(result)
 
 
             else -> result.notImplemented()
@@ -746,5 +748,48 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         })
 
 
+    }
+
+    private fun unblockUsers(call: MethodCall, result: Result) {
+        val uids: List<String> = call.argument("uids")!!
+        CometChat.unblockUsers(
+            uids,
+            object : CometChat.CallbackListener<HashMap<String, String>>() {
+
+                override fun onSuccess(resultMap: HashMap<String, String>) {
+                    result.success(resultMap)
+                }
+
+                override fun onError(e: CometChatException) {
+                    Log.d("blockUser", "onError: ${e.message}")
+                    result.error(e.code, e.message, e.details)
+                }
+            })
+
+
+    }
+
+    private fun fetchBlockedUsers(result: Result) {
+
+        val blockedUsersRequest = BlockedUsersRequest.BlockedUsersRequestBuilder().build()
+
+        blockedUsersRequest.fetchNext(object : CometChat.CallbackListener<List<User>>() {
+            override fun onSuccess(users: List<User>) {
+                Log.d(
+                    "fetchBlockedUsers",
+                    "Blocked users list fetched successfully: " + users.size
+                )
+                val list = users.map { e -> getUserMap(e) }
+                result.success(list)
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d(
+                    "fetchBlockedUsers",
+                    "Blocked users list fetching failed with exception: " + e.message
+                )
+                result.error(e.code, e.message, e.details)
+            }
+        })
     }
 }
