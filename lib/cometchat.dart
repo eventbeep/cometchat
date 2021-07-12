@@ -92,6 +92,17 @@ class CometChat {
     }
   }
 
+  Future<User?> getUser(String uid) async {
+    try {
+      final result = await _channel.invokeMethod('getUser', {'uid': uid});
+
+      final user = User.fromMap(result);
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<User?> getLoggedInUser() async {
     try {
       final result = await _channel.invokeMethod('getLoggedInUser');
