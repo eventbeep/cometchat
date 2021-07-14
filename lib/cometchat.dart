@@ -381,8 +381,7 @@ class CometChat {
   Future<Map<String, dynamic>> blockUser(List<String>? uids) async {
     try {
       final result = await _channel.invokeMethod('blockUsers', {'uids': uids});
-      final map = json.decode(result);
-      return Map<String, dynamic>.from(map);
+      return Map<String, dynamic>.from(result);
     } catch (e) {
       throw e;
     }
@@ -392,8 +391,7 @@ class CometChat {
     try {
       final result =
           await _channel.invokeMethod('unblockUsers', {'uids': uids});
-      final map = json.decode(result);
-      return Map<String, dynamic>.from(map);
+      return Map<String, dynamic>.from(result);
     } catch (e) {
       throw e;
     }

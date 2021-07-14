@@ -92,6 +92,7 @@ class _MyAppState extends State<MyApp> {
                   return ListTile(
                     title: Text(e.name),
                     onLongPress: () async {
+                await cometChat.blockUser([e.uid]);
                       User user = await cometChat.getUser(e.uid);
                       print("from get user ${user.name}");
                       print(e.name);
