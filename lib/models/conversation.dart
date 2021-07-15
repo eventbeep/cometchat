@@ -34,7 +34,7 @@ class Conversation {
       conversationId: map['conversationId'],
       conversationType: map['conversationType'],
       conversationWith: appEntity,
-      lastMessage: map['lastMessage'] == null
+      lastMessage: map['lastMessage'] == null || map['lastMessage'].isEmpty
           ? null
           : BaseMessage.fromMap(map['lastMessage']),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
