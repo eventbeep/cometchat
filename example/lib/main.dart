@@ -231,11 +231,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> initStuff() async {
-    // final l = widget.conversation.conversationType == CometReceiverType.user
-    //     ? await widget.cometChat.fetchPreviousMessages(
-    //         uid: (widget.conversation.conversationWith as User).uid)
-    //     : await widget.cometChat.fetchPreviousMessages(
-    //         guid: (widget.conversation.conversationWith as Group).guid);
+     final l = widget.conversation.conversationType == CometReceiverType.user
+         ? await widget.cometChat.fetchPreviousMessages(
+             uid: (widget.conversation.conversationWith as User).uid)
+         : await widget.cometChat.fetchPreviousMessages(
+             guid: (widget.conversation.conversationWith as Group).guid);
     setState(() {
       list = List.from([]);
     });

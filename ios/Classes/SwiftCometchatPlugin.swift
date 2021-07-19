@@ -154,9 +154,9 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func sendMessage(args: [String: Any], result: @escaping FlutterResult){
-        let receiverID = args["receiverId"] as! String
-        let messageText = args["messageText"] as! String
-        let receiver = args["receiverType"] as! String
+        let receiverID = args["receiverId"] as? String ?? ""
+        let messageText = args["messageText"] as? String ?? ""
+        let receiver = args["receiverType"] as? String ?? ""
         _ = args["parentMessageId"] as? Int?
         
         print(messageText)
@@ -302,15 +302,19 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         self.messagesRequest = builder.build()
 
         self.messagesRequest.fetchPrevious(onSuccess: { (response) in
-            if let messages = response{
-                let conversationList = messages.map { (eachMsg) -> [String : Any]? in
-                    if let conversation = CometChat.getConversationFromMessage(eachMsg){
-                        return self.getConversationMap(conversation: conversation)
+            
+            
+                if let messages = response{
+                    //print("types ,",messages.map{($0.mes)})
+                    let conversationList = messages.map { (eachMsg) -> [String : Any]? in
+                        return self.getMessageMap(message: eachMsg)
+                        
                     }
-                    return [:]
+                    result(conversationList)
                 }
-                result(conversationList)
-            }
+            
+            
+            
 
         }) { (error) in
 
@@ -522,7 +526,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 "conversationId" : conversation.conversationId ?? "",
                 "conversationType" : conversationType,
                 "conversationWith" : conversationWith ?? [:],
-                "updatedAt" : Int(conversation.updatedAt) ?? 0,
+                "updatedAt" : Int(conversation.updatedAt) ,
                 "unreadMessageCount" : conversation.unreadMessageCount,
                 "lastMessage":self.getMessageMap(message: conversation.lastMessage) ?? [:]
             ]
@@ -535,7 +539,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         print(message as Any)
         if let message = message {
             
-            print(message.messageType)
+           // print(message.messageType)
             
             var receiver : [String : Any]?
             var receiverType : String
@@ -555,23 +559,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 receiver = getGroupMap(group: message.receiver as? Group)
             }
             
-            var type : String
-            switch message.messageType {
-            case CometChat.MessageType.text:
-                type = "text"
-            case CometChat.MessageType.image:
-                type = "image"
-            case CometChat.MessageType.video:
-                type = "video"
-            case CometChat.MessageType.file:
-                type = "file"
-            case CometChat.MessageType.audio:
-                type = "audio"
-            default:
-                type = "custom"
-            }
-            
-            var category : String
+            var category : String = "custom"
             switch message.messageCategory {
             case CometChat.MessageCategory.message:
                 category = "message"
@@ -582,6 +570,28 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             default:
                 category = "custom"
             }
+            
+            var type : String = ""
+            if category != "action"{
+                switch message.messageType {
+                case CometChat.MessageType.text:
+                    type = "text"
+                case CometChat.MessageType.image:
+                    type = "image"
+                case CometChat.MessageType.video:
+                    type = "video"
+                case CometChat.MessageType.file:
+                    type = "file"
+                case CometChat.MessageType.audio:
+                    type = "audio"
+                default:
+                    type = "custom"
+                }
+            }else{
+                type = "action"
+            }
+            
+           
             
             var messageMap = [
                 "id" : message.id as Any,
