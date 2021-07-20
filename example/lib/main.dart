@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
                   return ListTile(
                     title: Text(e.name),
                     onLongPress: () async {
-                await cometChat.blockUser([e.uid]);
+                      await cometChat.blockUser([e.uid]);
                       User user = await cometChat.getUser(e.uid);
                       print("from get user ${user.name}");
                       print(e.name);
@@ -184,12 +184,14 @@ class _ChatPageState extends State<ChatPage> {
             if (widget.conversation.conversationType == "group")
               TextButton(
                   onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
+                        context,
+                        MaterialPageRoute(
                           builder: (_) => MembersPage(
-                                cometChat: widget.cometChat,
-                                conversation: widget.conversation,
-                              ))),
+                            cometChat: widget.cometChat,
+                            conversation: widget.conversation,
+                          ),
+                        ),
+                      ),
                   child: Text("Get members by search")),
             Expanded(
               child: ListView.builder(
@@ -231,13 +233,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> initStuff() async {
-     final l = widget.conversation.conversationType == CometReceiverType.user
-         ? await widget.cometChat.fetchPreviousMessages(
-             uid: (widget.conversation.conversationWith as User).uid)
-         : await widget.cometChat.fetchPreviousMessages(
-             guid: (widget.conversation.conversationWith as Group).guid);
+    final l = widget.conversation.conversationType == CometReceiverType.user
+        ? await widget.cometChat.fetchPreviousMessages(
+            uid: (widget.conversation.conversationWith as User).uid)
+        : await widget.cometChat.fetchPreviousMessages(
+            guid: (widget.conversation.conversationWith as Group).guid);
     setState(() {
-      list = List.from([]);
+      list = List.from(l);
     });
   }
 }

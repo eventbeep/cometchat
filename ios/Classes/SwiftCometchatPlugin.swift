@@ -652,7 +652,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             return [
                 "fileName" : attachment.fileName,
                 "fileExtension" : attachment.fileExtension,
-                "fileSize" : attachment.fileSize,
+                "fileSize" : Int(attachment.fileSize) ?? 0,
                 "fileMimeType" : attachment.fileMimeType as Any,
                 "fileUrl" : attachment.fileUrl as Any,
             ]
