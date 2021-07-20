@@ -27,56 +27,55 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         //    result("iOS " + UIDevice.current.systemVersion)
         
         DispatchQueue.main.async { [weak self] in
-            print("Method is , ",call.method)
+            print("Method is ",call.method)
+            let args = call.arguments as? [String: Any] ?? [String: Any]();
             switch call.method {
-            case "init":
-                self?.initializeCometChat(args: call.arguments as! [String: Any], result:result)
-            case "createUser":
-                self?.createUser(args: call.arguments as! [String: Any], result:result)
-            case "loginWithApiKey":
-                self?.loginWithApiKey(args: call.arguments as! [String: Any], result:result)
-            case "loginWithAuthToken":
-                self?.loginWithAuthToken(args: call.arguments as! [String: Any], result:result)
-            case "logout":
-                self?.logout(args: call.arguments as! [String: Any], result:result)
-            case "getLoggedInUser":
-                self?.getLoggedInUser(result:result)
-            case "sendMessage":
-                self?.sendMessage(args: call.arguments as! [String: Any], result:result)
-            case "sendMediaMessage":
-                self?.sendMediaMessage(args: call.arguments as! [String: Any], result:result)
-            case "fetchPreviousMessages":
-                self?.fetchPreviousMessages(args: call.arguments as! [String: Any], result:result)
-            case "fetchNextConversations":
-                self?.fetchNextConversations(args: call.arguments as! [String: Any], result:result)
-            case "deleteMessage":
-                self?.deleteMessage(args: call.arguments as! [String: Any], result:result)
-            case "createGroup":
-                self?.createGroup(args: call.arguments as! [String: Any], result:result)
-            case "joinGroup":
-                self?.joinGroup(args: call.arguments as! [String: Any], result:result)
-            case "leaveGroup":
-                self?.leaveGroup(args: call.arguments as! [String: Any], result:result)
-            case "deleteGroup":
-                self?.deleteGroup(args: call.arguments as! [String: Any], result:result)
-            case "fetchNextGroupMembers":
-                self?.fetchNextGroupMembers(args: call.arguments as! [String: Any], result:result)
-            case "fetchNextGroups":
-                self?.fetchNextGroups(args: call.arguments as! [String: Any], result:result)
-            case "registerTokenForPushNotification":
-                self?.registerTokenForPushNotification(args: call.arguments as! [String: Any], result:result)
-            case "getUnreadMessageCount":
-                self?.getUnreadMessageCount(args: call.arguments as! [String: Any], result:result)
-            case "markAsRead":
-                self?.markAsRead(args: call.arguments as! [String: Any], result:result)
-            case "callExtension":
-                self?.callExtension(args: call.arguments as! [String: Any], result:result)
-            default:
-                result(FlutterMethodNotImplemented)
+                case "init":
+                    self?.initializeCometChat(args: args, result:result)
+                case "createUser":
+                    self?.createUser(args: args, result:result)
+                case "loginWithApiKey":
+                    self?.loginWithApiKey(args: args, result:result)
+                case "loginWithAuthToken":
+                    self?.loginWithAuthToken(args: args, result:result)
+                case "logout":
+                    self?.logout(result:result)
+                case "getLoggedInUser":
+                    self?.getLoggedInUser(result:result)
+                case "sendMessage":
+                    self?.sendMessage(args: args, result:result)
+                case "sendMediaMessage":
+                    self?.sendMediaMessage(args: args, result:result)
+                case "fetchPreviousMessages":
+                    self?.fetchPreviousMessages(args: args, result:result)
+                case "fetchNextConversations":
+                    self?.fetchNextConversations(args: args, result:result)
+                case "deleteMessage":
+                    self?.deleteMessage(args: args, result:result)
+                case "createGroup":
+                    self?.createGroup(args: args, result:result)
+                case "joinGroup":
+                    self?.joinGroup(args: args, result:result)
+                case "leaveGroup":
+                    self?.leaveGroup(args: args, result:result)
+                case "deleteGroup":
+                    self?.deleteGroup(args: args, result:result)
+                case "fetchNextGroupMembers":
+                    self?.fetchNextGroupMembers(args: args, result:result)
+                case "fetchNextGroups":
+                    self?.fetchNextGroups(args: args, result:result)
+                case "registerTokenForPushNotification":
+                    self?.registerTokenForPushNotification(args: args, result:result)
+                case "getUnreadMessageCount":
+                    self?.getUnreadMessageCount(result:result)
+                case "markAsRead":
+                    self?.markAsRead(args: args, result:result)
+                case "callExtension":
+                    self?.callExtension(args: args, result:result)
+                default:
+                    result(FlutterMethodNotImplemented)
             }
         }
-        
-        
     }
     
     private func initializeCometChat(args: [String: Any], result: @escaping FlutterResult){
@@ -138,7 +137,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func logout(args: [String: Any], result: @escaping FlutterResult){
+    private func logout(result: @escaping FlutterResult){
         CometChat.logout { (message) in
             result(String(message))
         } onError: { (error) in
@@ -452,30 +451,25 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
     }
     
-    private func getUnreadMessageCount(args: [String: Any], result: @escaping FlutterResult){
-        
+    private func getUnreadMessageCount(result: @escaping FlutterResult){
         CometChat.getUnreadMessageCount(onSuccess: { (response) in
-                    
             print("Unread message count: \(response)")
             result(response)
                     
         }) { (error) in
-                    
             print("Error in fetching unread count: \(error)")
             result(FlutterError(code: error?.errorCode ?? "" ,
                                 message: error?.errorDescription, details: error?.debugDescription))
         }
-        
     }
-    private func markAsRead(args: [String: Any], result: @escaping FlutterResult){
         
+    private func markAsRead(args: [String: Any], result: @escaping FlutterResult){
         let messageId = args["messageId"] as? Int ?? 50
         let senderID = args["senderId"] as? String ?? ""
 
         CometChat.markAsRead(messageId: messageId, receiverId: senderID, receiverType: .user)
-        
-        
     }
+
     private func callExtension(args: [String: Any], result: @escaping FlutterResult){
         
         let slug = args["slug"] as? String ?? ""

@@ -144,6 +144,8 @@ class _MyAppState extends State<MyApp> {
     //   'vji5bpo3avz935floys1ef7dnia3',
     //   CometReceiverType.user,
     // );
+    final unread = await cometChat.getUnreadMessageCount();
+    print('Unread: $unread');
     return cometChat.fetchNextConversations();
     // return [];
   }

@@ -5,6 +5,7 @@ import 'package:cometchat/models/conversation.dart';
 import 'package:cometchat/models/group.dart';
 import 'package:cometchat/models/group_member.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 import 'models/base_message.dart';
 import 'models/media_message.dart';
@@ -336,7 +337,11 @@ class CometChat {
     try {
       final count = await _channel.invokeMethod('getUnreadMessageCount');
       final countMap = Map<String, dynamic>.from(count);
-      return countMap.map((k, v) => MapEntry(k, Map<String, int>.from(v)));
+      final result =
+          countMap.map((k, v) => MapEntry(k, Map<String, int>.from(v)));
+      if (!result.containsKey('group')) result['group'] = {};
+      if (!result.containsKey('user')) result['user'] = {};
+      return result;
     } catch (e) {
       throw e;
     }
