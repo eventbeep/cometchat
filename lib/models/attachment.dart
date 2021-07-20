@@ -1,5 +1,3 @@
-import 'package:logger/logger.dart';
-
 class Attachment {
   final String fileUrl;
   final String fileName;
