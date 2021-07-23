@@ -80,6 +80,22 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         Log.e("onCancel", "event onCancel called")
     }
 
+    private fun getUser(call: MethodCall, result: Result) {
+        val uid: String = call.argument<String>("uid").toString()
+
+        CometChat.getUser(uid, object : CallbackListener<User?>() {
+            override fun onSuccess(user: User?) {
+                result.success(user?.let { getUserMap(user) })
+            }
+
+            override fun onError(e: CometChatException) {
+                result.error(e.code, e.message, e.details)
+            }
+        })
+
+
+    }
+
     // CometChat functions
     private fun initializeCometChat(call: MethodCall, result: Result) {
         val appID: String = call.argument("appId") ?: ""
@@ -308,7 +324,9 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "status" to user.status,
             "statusMessage" to user.statusMessage,
             "lastActiveAt" to user.lastActiveAt,
-            "tags" to user.tags
+            "tags" to user.tags,
+            "blockedByMe" to user.isBlockedByMe,
+            "hasBlockedMe" to user.isHasBlockedMe
         )
     }
 
