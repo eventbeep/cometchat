@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.NonNull
 import com.cometchat.pro.core.*
+import com.cometchat.pro.core.CometChat.CallbackListener
 import com.cometchat.pro.exceptions.CometChatException
 import com.cometchat.pro.models.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -47,11 +48,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "loginWithAuthToken" -> loginWithAuthToken(call, result)
             "logout" -> logout(result)
             "getLoggedInUser" -> getLoggedInUser(result)
+            "getUser" -> getUser(call, result)
             "sendMessage" -> sendMessage(call, result)
             "sendMediaMessage" -> sendMediaMessage(call, result)
 //            "sendCustomMessage" -> sendCustomMessage(call, result)
             "fetchPreviousMessages" -> fetchPreviousMessages(call, result)
             "fetchNextConversations" -> fetchNextConversations(call, result)
+            "getConversation" -> getConversation(call, result)
 //            "getConversationFromMessage" -> getConversationFromMessage(call, result)
             "deleteMessage" -> deleteMessage(call, result)
             "createGroup" -> createGroup(call, result)
@@ -64,6 +67,11 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "getUnreadMessageCount" -> getUnreadMessageCount(result)
             "markAsRead" -> markAsRead(call, result)
             "callExtension" -> callExtension(call, result)
+            "blockUsers" -> blockUsers(call, result)
+            "unblockUsers" -> unblockUsers(call, result)
+            "fetchBlockedUsers" -> fetchBlockedUsers(result)
+
+
             else -> result.notImplemented()
         }
     }
@@ -89,7 +97,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             }
 
             override fun onError(e: CometChatException) {
-                result.error(e.code, e.message, e.details)
+                result.error(e.code,e.message,e.details)
             }
         })
 
@@ -406,6 +414,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     )
                     result.success(getMessageMap(message))
                 }
+
                 override fun onMessageDeleted(message: BaseMessage) {
                     Log.d(
                         "deleteMessage",
@@ -485,6 +494,21 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
             override fun onError(e: CometChatException) {
                 Log.e("fetchNextConversations", "Failed to fetch conversations: " + e.message)
+                result.error(e.code, e.message, e.details)
+            }
+        })
+    }
+
+    private fun getConversation(call: MethodCall, result: Result) {
+        val conversationWith: String = call.argument("conversationWith") ?: ""
+        val conversationType: String = call.argument("conversationType") ?: ""
+
+        CometChat.getConversation(conversationWith, conversationType, object: CometChat.CallbackListener<Conversation>(){
+            override fun onSuccess(conversation: Conversation) {
+                result.success(getConversationMap(conversation))
+            }
+            override fun onError(e: CometChatException) {
+                Log.e("getConversation", "Failed to fetch conversation: " + e.message)
                 result.error(e.code, e.message, e.details)
             }
         })
@@ -589,11 +613,13 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun fetchNextGroupMembers(call: MethodCall, result: Result) {
         val guid: String = call.argument("guid") ?: ""
         val limit: Int = call.argument("limit") ?: -1
+        val keyword: String = call.argument("keyword") ?: ""
         var builder: GroupMembersRequest.GroupMembersRequestBuilder =
             GroupMembersRequest.GroupMembersRequestBuilder(guid)
 
         if (limit > 0) builder = builder.setLimit(limit)
 
+        if (keyword.isNotEmpty()) builder = builder.setSearchKeyword(keyword)
         val groupMembersRequest: GroupMembersRequest = builder.build()
 
         groupMembersRequest.fetchNext(object : CometChat.CallbackListener<List<GroupMember>>() {
@@ -706,5 +732,65 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     result.error(e.code, e.message, e.details)
                 }
             })
+    }
+
+    private fun blockUsers(call: MethodCall, result: Result) {
+        val uids: List<String> = call.argument("uids")!!
+        CometChat.blockUsers(uids, object : CometChat.CallbackListener<HashMap<String, String>>() {
+
+            override fun onSuccess(resultMap: HashMap<String, String>) {
+                result.success(resultMap)
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d("blockUser", "onError: ${e.message}")
+                result.error(e.code, e.message, e.details)
+            }
+        })
+
+
+    }
+
+    private fun unblockUsers(call: MethodCall, result: Result) {
+        val uids: List<String> = call.argument("uids")!!
+        CometChat.unblockUsers(
+            uids,
+            object : CometChat.CallbackListener<HashMap<String, String>>() {
+
+                override fun onSuccess(resultMap: HashMap<String, String>) {
+                    result.success(resultMap)
+                }
+
+                override fun onError(e: CometChatException) {
+                    Log.d("blockUser", "onError: ${e.message}")
+                    result.error(e.code, e.message, e.details)
+                }
+            })
+
+
+    }
+
+    private fun fetchBlockedUsers(result: Result) {
+
+        val blockedUsersRequest = BlockedUsersRequest.BlockedUsersRequestBuilder().build()
+
+        blockedUsersRequest.fetchNext(object : CometChat.CallbackListener<List<User>>() {
+            override fun onSuccess(users: List<User>) {
+                Log.d(
+                    "fetchBlockedUsers",
+                    "Blocked users list fetched successfully: " + users.size
+                )
+                val list = users.map { e -> getUserMap(e) }
+                result.success(list)
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d(
+                    "fetchBlockedUsers",
+                    "Blocked users list fetching failed with exception: " + e.message
+                )
+                result.error(e.code, e.message, e.details)
+            }
+        })
     }
 }
