@@ -93,7 +93,6 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
         CometChat.getUser(uid, object : CallbackListener<User?>() {
             override fun onSuccess(user: User?) {
-                //Your Success Code
                 result.success(user?.let { getUserMap(user) })
             }
 
@@ -333,7 +332,9 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "status" to user.status,
             "statusMessage" to user.statusMessage,
             "lastActiveAt" to user.lastActiveAt,
-            "tags" to user.tags
+            "tags" to user.tags,
+            "blockedByMe" to user.isBlockedByMe,
+            "hasBlockedMe" to user.isHasBlockedMe
         )
     }
 
