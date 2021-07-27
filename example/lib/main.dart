@@ -84,46 +84,71 @@ class _MyAppState extends State<MyApp> {
               return Center(child: CircularProgressIndicator());
             }
             final list = snapshot.data ?? [];
-            return ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                if (list[index].conversationWith is User) {
-                  final e = list[index].conversationWith as User;
-                  return ListTile(
-                    title: Text(e.name),
-                    onLongPress: () async {
-                      await cometChat.blockUser([e.uid]);
-                      User user = await cometChat.getUser(e.uid);
-                      print("from get user ${user.name}");
-                      print(e.name);
+            return Stack(
+              children: [
+                ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    if (list[index].conversationWith is User) {
+                      final e = list[index].conversationWith as User;
+                      return ListTile(
+                        title: Text(e.name),
+                        onLongPress: () async {
+                          await cometChat.blockUser([e.uid]);
+                          User user = await cometChat.getUser(e.uid);
+                          print("from get user ${user.name}");
+                          print(e.name);
+                        },
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(
+                              cometChat: cometChat,
+                              conversation: list[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      final e = list[index].conversationWith as Group;
+                      return ListTile(
+                        title: Text(e.name),
+                        trailing: Text(e.owner),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(
+                              cometChat: cometChat,
+                              conversation: list[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  child: StreamBuilder<BaseMessage>(
+                    stream: cometChat.onMessageReceived(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<BaseMessage> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container(
+                          height: 80,
+                          color: Colors.white24,
+                          child: Text('Waiting for new message'),
+                        );
+                      }
+                      return Container(
+                        height: 80,
+                        color: Colors.white24,
+                        child: Text(snapshot.data.sender.name),
+                      );
                     },
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          cometChat: cometChat,
-                          conversation: list[index],
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  final e = list[index].conversationWith as Group;
-                  return ListTile(
-                    title: Text(e.name),
-                    trailing: Text(e.owner),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          cometChat: cometChat,
-                          conversation: list[index],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -145,7 +170,6 @@ class _MyAppState extends State<MyApp> {
     //   CometReceiverType.user,
     // );
     final unread = await cometChat.getUnreadMessageCount();
-    print('Unread: $unread');
     return cometChat.fetchNextConversations();
     // return [];
   }
