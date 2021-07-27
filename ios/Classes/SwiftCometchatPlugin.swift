@@ -4,6 +4,9 @@ import CometChatPro
 
 public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     
+  
+    
+    var sink: FlutterEventSink?
     //Initialize over here in order to get callback from Cometchat
     var messagesRequest = MessagesRequest.MessageRequestBuilder().set(limit: 50).build(); // for messages obj
     
@@ -23,6 +26,11 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "cometchat", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: channel)
         
+        let channelName = "cometchat_message_stream"
+        let methodChannel = FlutterEventChannel(name: channelName, binaryMessenger: registrar.messenger())
+        methodChannel.setStreamHandler(instance)
+        
+        CometChat.messagedelegate = instance
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -754,4 +762,45 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
 }
 
 
+//MARK: - ------------ Cometchat Delegates -----------------
+extension SwiftCometchatPlugin : CometChatMessageDelegate{
+    
+    public func onTextMessageReceived(textMessage: TextMessage) {
+        guard let eventSink = self.sink else { return }
+        let parsedMsg = self.getMessageMap(message: textMessage)
+        let jsonData =  try? JSONSerialization.data(withJSONObject: parsedMsg ?? [:], options: [.prettyPrinted])
+        print("From textmsg ",parsedMsg)
+        eventSink(String(data: jsonData!, encoding: .ascii))
+         //return parsedMsg obj back to flutter
+        
+        
+      }
 
+    public func onMediaMessageReceived(mediaMessage: MediaMessage) {
+        let parsedMsg = self.getMessageMap(message: mediaMessage)
+        print("From mediaMsg ",parsedMsg)
+        
+      }
+      
+    public func onCustomMessageReceived(customMessage: CustomMessage) {
+        let parsedMsg = self.getMessageMap(message: customMessage)
+        print("From customMsg ",parsedMsg)
+        
+      }
+    
+}
+
+//MARK: - ------------- FlutterEventChannel Delegates -----------------
+extension SwiftCometchatPlugin : FlutterStreamHandler{
+    
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.sink = events
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.sink = nil
+        return nil
+    }
+    
+}
