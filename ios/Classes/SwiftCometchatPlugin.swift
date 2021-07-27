@@ -4,8 +4,6 @@ import CometChatPro
 
 public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     
-  
-    
     var sink: FlutterEventSink?
     //Initialize over here in order to get callback from Cometchat
     var messagesRequest = MessagesRequest.MessageRequestBuilder().set(limit: 50).build(); // for messages obj
@@ -768,9 +766,8 @@ extension SwiftCometchatPlugin : CometChatMessageDelegate{
     public func onTextMessageReceived(textMessage: TextMessage) {
         guard let eventSink = self.sink else { return }
         let parsedMsg = self.getMessageMap(message: textMessage)
-        let jsonData =  try? JSONSerialization.data(withJSONObject: parsedMsg ?? [:], options: [.prettyPrinted])
         print("From textmsg ",parsedMsg)
-        eventSink(String(data: jsonData!, encoding: .ascii))
+        eventSink(parsedMsg)
          //return parsedMsg obj back to flutter
         
         
