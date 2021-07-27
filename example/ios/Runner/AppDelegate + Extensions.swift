@@ -9,9 +9,16 @@ import UIKit
 import CometChatPro
 
 extension AppDelegate : CometChatMessageDelegate{
+    
+    
     func onTextMessageReceived(textMessage: TextMessage) {
+        
+        guard let eventSink = self.sink else { return }
         let parsedMsg = self.getMessageMap(message: textMessage)
-        print("From textmsg ",parsedMsg) //return parsedMsg obj back to flutter
+        let jsonData =  try? JSONSerialization.data(withJSONObject: parsedMsg ?? [:], options: [.prettyPrinted])
+        print("From textmsg ",parsedMsg)
+        eventSink(String(data: jsonData!, encoding: .ascii))
+         //return parsedMsg obj back to flutter
         
         
       }

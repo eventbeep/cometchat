@@ -18,9 +18,11 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     var mediaMessage = MediaMessage(receiverUid: "", fileurl:"", messageType: .image, receiverType: .user);
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "cometchat", binaryMessenger: registrar.messenger())
         let instance = SwiftCometchatPlugin()
+        
+        let channel = FlutterMethodChannel(name: "cometchat", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: channel)
+        
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -238,7 +240,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             let list = conversationList.map { (e) -> [String : Any]? in
              return self.getConversationMap(conversation: e)
             }
-            print("list count ",list.count)
+            //print("list count ",list.count)
             result(list)
 
         }) { (exception) in
@@ -530,7 +532,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func getMessageMap(message: BaseMessage?) -> [String: Any]? {
-        print(message as Any)
+        //print(message as Any)
         if let message = message {
             
            // print(message.messageType)
@@ -750,4 +752,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
     }
 }
+
+
 
