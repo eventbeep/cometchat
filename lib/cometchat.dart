@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cometchat/models/app_entity.dart';
 import 'package:cometchat/models/conversation.dart';
 import 'package:cometchat/models/group.dart';
 import 'package:cometchat/models/group_member.dart';
@@ -117,21 +118,24 @@ class CometChat {
 
   Future<TextMessage> sendMessage(
     String messageText,
-    String receiverId,
+    AppEntity receiver,
     String receiverType, {
     int? parentMessageId,
   }) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
-        'receiverId': receiverId,
+        'receiverId': (receiverType == 'user')
+            ? (receiver as User).uid
+            : (receiver as Group).guid,
         'receiverType': receiverType,
         'messageText': messageText,
         'parentMessageId': parentMessageId,
       });
 
-      final textMessage = TextMessage.fromMap(result);
+      final textMessage = TextMessage.fromMap(result, receiver: receiver);
       return textMessage;
     } catch (e) {
+      Logger().e(e);
       throw e;
     }
   }
@@ -139,21 +143,30 @@ class CometChat {
   Future<MediaMessage> sendMediaMessage(
     String filePath,
     String messageType,
-    String receiverId,
+    AppEntity receiver,
     String receiverType, {
     String? caption,
     int? parentMessageId,
   }) async {
-    final result = await _channel.invokeMethod('sendMediaMessage', {
-      'receiverId': receiverId,
-      'receiverType': receiverType,
-      'filePath': filePath,
-      'messageType': messageType,
-      'caption': caption,
-      'parentMessageId': parentMessageId,
-    });
-    final mediaMessage = MediaMessage.fromMap(result);
-    return mediaMessage;
+    try {
+      Logger().d(filePath);
+      final result = await _channel.invokeMethod('sendMediaMessage', {
+        'receiverId': (receiverType == 'user')
+            ? (receiver as User).uid
+            : (receiver as Group).guid,
+        'receiverType': receiverType,
+        'filePath': filePath,
+        'messageType': messageType,
+        'caption': caption,
+        'parentMessageId': parentMessageId,
+      });
+      Logger().d(result);
+      final mediaMessage = MediaMessage.fromMap(result, receiver: receiver);
+      return mediaMessage;
+    } catch (e) {
+      Logger().e(e);
+      throw e;
+    }
   }
 
   // Future<CustomMessage> sendCustomMessage(

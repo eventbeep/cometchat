@@ -184,6 +184,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         CometChat.sendTextMessage(message: textMessage, onSuccess: { (message) in
             print("TextMessage sent successfully. " + message.stringValue())
+            let user = CometChat.getLoggedInUser();
+            textMessage.sender = user
             result(self.getMessageMap(message: textMessage))
         }) { (error) in
             print("TextMessage sending failed with error: " + error!.errorDescription);
@@ -196,28 +198,39 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         let receiverid = args["receiverId"] as? String ?? ""
         let receiverType = args["receiverType"] as? String ?? ""
-        let messageType = args["messageType"] as? Int ?? 0
+        let msgType = args["messageType"] as? String ?? ""
         
         let filePath = args["filePath"] as? String ?? ""
         let caption = args["caption"] as? String ?? ""
         let parentMessageId = args["parentMessageId"] as? Int ?? 0
 
+        let messageType : CometChat.MessageType
+        switch msgType {
+        case "image":
+            messageType = .image
+        case "video":
+            messageType = .video
+        case "audio":
+            messageType = .audio
+        default:
+            messageType = .file
+        }
+
+        let mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType:  messageType, receiverType: .user)
         
         if (caption == ""){
-            self.mediaMessage.caption = caption
+            mediaMessage.caption = caption
         }
         
         if (parentMessageId > 0) {
-            self.mediaMessage.parentMessageId = parentMessageId
+            mediaMessage.parentMessageId = parentMessageId
         }
 
-        self.mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType: CometChat.MessageType(rawValue: messageType) ?? .image, receiverType: .user)
-        CometChat.sendMediaMessage(message: self.mediaMessage, onSuccess: { (response) in
-
-            result(self.getMessageMap(message: self.mediaMessage))
-            
+        CometChat.sendMediaMessage(message: mediaMessage, onSuccess: { (response) in
+            let user = CometChat.getLoggedInUser();
+            mediaMessage.sender = user
+            result(self.getMessageMap(message: mediaMessage))
         }) { (error) in
-
             result(FlutterError(code: error?.errorCode ?? "",
                                 message: error?.errorDescription, details: error?.debugDescription))
         }
@@ -242,15 +255,12 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
 
         self.convRequest = builder.build()
         self.convRequest.fetchNext(onSuccess: { (conversationList) in
-
             let list = conversationList.map { (e) -> [String : Any]? in
              return self.getConversationMap(conversation: e)
             }
             //print("list count ",list.count)
             result(list)
-
         }) { (exception) in
-
           print("here exception \(String(describing: exception?.errorDescription))")
           result(FlutterError(code: exception?.errorCode ?? "",
                               message: exception?.errorDescription, details: exception?.debugDescription))
@@ -281,7 +291,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func fetchPreviousMessages(args: [String: Any], result: @escaping FlutterResult){
-
         let limit = args["limit"] as? Int ?? 50
         let uid = args["uid"] as? String ?? ""
         let guid = args["guid"] as? String ?? ""

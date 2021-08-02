@@ -60,15 +60,21 @@ class MediaMessage extends BaseMessage {
           replyCount: replyCount,
         );
 
-  factory MediaMessage.fromMap(dynamic map) {
+  factory MediaMessage.fromMap(dynamic map, {AppEntity? receiver}) {
     if (map == null)
       throw ArgumentError('The type of mediamessage map is null');
 
     final appEntity = (map['receiver'] == null)
-        ? null
+        ? receiver
         : (map['receiverType'] == 'user')
             ? User.fromMap(map['receiver'])
             : Group.fromMap(map['receiver']);
+
+    final conversationId = map['conversationId'].isEmpty
+        ? map['receiverType'] == 'user'
+            ? '${map['sender']['uid']}_user_${(appEntity as User).uid}'
+            : 'group_${map['receiver']['guid']}'
+        : map['conversationId'];
 
     return MediaMessage(
       caption: map['caption'] ?? '',
@@ -96,7 +102,7 @@ class MediaMessage extends BaseMessage {
       deletedBy: map['deletedBy'],
       editedBy: map['editedBy'],
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
-      conversationId: map['conversationId'],
+      conversationId: conversationId,
       parentMessageId: map['parentMessageId'],
       replyCount: map['replyCount'],
     );

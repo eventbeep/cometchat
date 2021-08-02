@@ -246,7 +246,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: Icon(Icons.send),
                   onPressed: () => widget.cometChat.sendMessage(
                     messageText,
-                    (widget.conversation.conversationWith as User).uid,
+                    widget.conversation.conversationWith,
                     CometReceiverType.user,
                   ),
                 ),
