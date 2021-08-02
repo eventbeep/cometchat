@@ -149,7 +149,6 @@ class CometChat {
     int? parentMessageId,
   }) async {
     try {
-      Logger().d(filePath);
       final result = await _channel.invokeMethod('sendMediaMessage', {
         'receiverId': (receiverType == 'user')
             ? (receiver as User).uid
@@ -160,7 +159,6 @@ class CometChat {
         'caption': caption,
         'parentMessageId': parentMessageId,
       });
-      Logger().d(result);
       final mediaMessage = MediaMessage.fromMap(result, receiver: receiver);
       return mediaMessage;
     } catch (e) {

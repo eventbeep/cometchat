@@ -24,8 +24,6 @@ class Conversation {
     if (map == null)
       throw ArgumentError('The type of conversation map is null');
 
-    // Logger().d(map);
-
     final appEntity = (map['conversationType'] == 'user')
         ? User.fromMap(map['conversationWith'])
         : Group.fromMap(map['conversationWith']);
