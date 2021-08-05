@@ -56,16 +56,20 @@ class TextMessage extends BaseMessage {
           replyCount: replyCount,
         );
 
-  factory TextMessage.fromMap(dynamic map) {
+  factory TextMessage.fromMap(dynamic map, {AppEntity? receiver}) {
     if (map == null) throw ArgumentError('The type of textmessage map is null');
 
-    // Logger().d(map);
-
     final appEntity = (map['receiver'] == null)
-        ? null
+        ? receiver
         : (map['receiverType'] == 'user')
             ? User.fromMap(map['receiver'])
             : Group.fromMap(map['receiver']);
+
+    final conversationId = map['conversationId'].isEmpty
+        ? map['receiverType'] == 'user'
+            ? '${map['sender']['uid']}_user_${(appEntity as User).uid}'
+            : 'group_${map['receiver']['guid']}'
+        : map['conversationId'];
 
     return TextMessage(
       text: map['text'] ?? '',
@@ -77,7 +81,9 @@ class TextMessage extends BaseMessage {
       type: map['type'],
       receiverType: map['receiverType'],
       category: map['category'],
-      sentAt: DateTime.fromMillisecondsSinceEpoch(map['sentAt'] * 1000),
+      sentAt: map['sentAt'] == 0
+          ? DateTime.now()
+          : DateTime.fromMillisecondsSinceEpoch(map['sentAt'] * 1000),
       deliveredAt:
           DateTime.fromMillisecondsSinceEpoch(map['deliveredAt'] * 1000),
       readAt: DateTime.fromMillisecondsSinceEpoch(map['readAt'] * 1000),
@@ -90,7 +96,7 @@ class TextMessage extends BaseMessage {
       deletedBy: map['deletedBy'],
       editedBy: map['editedBy'],
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
-      conversationId: map['conversationId'],
+      conversationId: conversationId,
       parentMessageId: map['parentMessageId'],
       replyCount: map['replyCount'],
     );

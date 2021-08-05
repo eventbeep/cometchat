@@ -84,46 +84,71 @@ class _MyAppState extends State<MyApp> {
               return Center(child: CircularProgressIndicator());
             }
             final list = snapshot.data ?? [];
-            return ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                if (list[index].conversationWith is User) {
-                  final e = list[index].conversationWith as User;
-                  return ListTile(
-                    title: Text(e.name),
-                    onLongPress: () async {
-                await cometChat.blockUser([e.uid]);
-                      User user = await cometChat.getUser(e.uid);
-                      print("from get user ${user.name}");
-                      print(e.name);
+            return Stack(
+              children: [
+                ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    if (list[index].conversationWith is User) {
+                      final e = list[index].conversationWith as User;
+                      return ListTile(
+                        title: Text(e.name),
+                        onLongPress: () async {
+                          await cometChat.blockUser([e.uid]);
+                          User user = await cometChat.getUser(e.uid);
+                          print("from get user ${user.name}");
+                          print(e.name);
+                        },
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(
+                              cometChat: cometChat,
+                              conversation: list[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      final e = list[index].conversationWith as Group;
+                      return ListTile(
+                        title: Text(e.name),
+                        trailing: Text(e.owner),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(
+                              cometChat: cometChat,
+                              conversation: list[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  child: StreamBuilder<BaseMessage>(
+                    stream: cometChat.onMessageReceived(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<BaseMessage> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container(
+                          height: 80,
+                          color: Colors.white24,
+                          child: Text('Waiting for new message'),
+                        );
+                      }
+                      return Container(
+                        height: 80,
+                        color: Colors.white24,
+                        child: Text(snapshot.data.sender.name),
+                      );
                     },
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          cometChat: cometChat,
-                          conversation: list[index],
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  final e = list[index].conversationWith as Group;
-                  return ListTile(
-                    title: Text(e.name),
-                    trailing: Text(e.owner),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          cometChat: cometChat,
-                          conversation: list[index],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -144,6 +169,7 @@ class _MyAppState extends State<MyApp> {
     //   'vji5bpo3avz935floys1ef7dnia3',
     //   CometReceiverType.user,
     // );
+    final unread = await cometChat.getUnreadMessageCount();
     return cometChat.fetchNextConversations();
     // return [];
   }
@@ -184,12 +210,14 @@ class _ChatPageState extends State<ChatPage> {
             if (widget.conversation.conversationType == "group")
               TextButton(
                   onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
+                        context,
+                        MaterialPageRoute(
                           builder: (_) => MembersPage(
-                                cometChat: widget.cometChat,
-                                conversation: widget.conversation,
-                              ))),
+                            cometChat: widget.cometChat,
+                            conversation: widget.conversation,
+                          ),
+                        ),
+                      ),
                   child: Text("Get members by search")),
             Expanded(
               child: ListView.builder(
@@ -218,7 +246,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: Icon(Icons.send),
                   onPressed: () => widget.cometChat.sendMessage(
                     messageText,
-                    (widget.conversation.conversationWith as User).uid,
+                    widget.conversation.conversationWith,
                     CometReceiverType.user,
                   ),
                 ),
@@ -231,13 +259,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> initStuff() async {
-    // final l = widget.conversation.conversationType == CometReceiverType.user
-    //     ? await widget.cometChat.fetchPreviousMessages(
-    //         uid: (widget.conversation.conversationWith as User).uid)
-    //     : await widget.cometChat.fetchPreviousMessages(
-    //         guid: (widget.conversation.conversationWith as Group).guid);
+    final l = widget.conversation.conversationType == CometReceiverType.user
+        ? await widget.cometChat.fetchPreviousMessages(
+            uid: (widget.conversation.conversationWith as User).uid)
+        : await widget.cometChat.fetchPreviousMessages(
+            guid: (widget.conversation.conversationWith as Group).guid);
     setState(() {
-      list = List.from([]);
+      list = List.from(l);
     });
   }
 }

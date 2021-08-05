@@ -78,9 +78,9 @@ class Action extends BaseMessage {
     return Action(
       message: map['message'] ?? '',
       rawData: map['rawData'] ?? '{}',
-      action: map['action'] ?? '',
-      oldScope: map['oldScope'] ?? '',
-      newScope: map['newScope'] ?? '',
+      action: map['action'].toString(),
+      oldScope: map['oldScope'].toString(),
+      newScope: map['newScope'].toString(),
       id: map['id'],
       muid: map['muid'],
       sender: User.fromMap(map['sender']),

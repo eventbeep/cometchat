@@ -24,8 +24,6 @@ class Conversation {
     if (map == null)
       throw ArgumentError('The type of conversation map is null');
 
-    // Logger().d(map);
-
     final appEntity = (map['conversationType'] == 'user')
         ? User.fromMap(map['conversationWith'])
         : Group.fromMap(map['conversationWith']);
@@ -34,7 +32,7 @@ class Conversation {
       conversationId: map['conversationId'],
       conversationType: map['conversationType'],
       conversationWith: appEntity,
-      lastMessage: map['lastMessage'] == null
+      lastMessage: map['lastMessage'] == null || map['lastMessage'].isEmpty
           ? null
           : BaseMessage.fromMap(map['lastMessage']),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
