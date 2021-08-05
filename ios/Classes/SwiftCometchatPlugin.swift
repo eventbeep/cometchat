@@ -255,7 +255,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: error?.errorCode ?? "",
                                 message: error?.errorDescription, details: error?.debugDescription))
         }
-        
     }
     
     private func fetchNextConversations(args: [String: Any], result: @escaping FlutterResult){
@@ -568,17 +567,23 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     private func fetchBlockedUsers(result: @escaping FlutterResult){
         let blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder().build();
         
-        blockedUserRequest.fetchNext { (users) in
-            let list = users?.map({ (e) -> [String : Any]? in
+        blockedUserRequest.fetchNext (onSuccess: { (blockedUsers) in
+            
+            let users = blockedUsers ?? []
+            
+            let list = users.map({ (e) -> [String : Any]? in
                 return self.getUserMap(user: e)
             })
-            print(list)
+            
+            print(list.count)
+            
             result(list)
-        } onError: { (error) in
+            
+        }, onError: { (error) in
             print("Error while fetching the blocked user request:  \(error?.errorDescription)");
             result(FlutterError(code: error?.errorCode ?? "" ,
                                 message: error?.errorDescription, details: error?.debugDescription))
-        }
+        })
     }
 
     private func getConversationMap(conversation: Conversation?) -> [String: Any]? {
@@ -724,7 +729,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             return [
                 "fileName" : attachment.fileName,
                 "fileExtension" : attachment.fileExtension,
-                "fileSize" : Int(attachment.fileSize) ?? 0,
+                "fileSize" : Int(attachment.fileSize) ,
                 "fileMimeType" : attachment.fileMimeType as Any,
                 "fileUrl" : attachment.fileUrl as Any,
             ]
@@ -734,7 +739,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func getUserMap(user: User?) -> [String: Any]? {
-        print(user as Any)
         if let user = user {
             let status : String
             switch user.status {
@@ -743,7 +747,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             default:
                 status = "offline"
             }
-            return [
+            let userMap = [
                 "uid" : user.uid ?? "",
                 "name" : user.name ?? "",
                 "avatar" : user.avatar ?? "",
@@ -752,11 +756,13 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 "metadata" : toJson(dictionary: user.metadata) as Any,
                 "status" : status,
                 "statusMessage" : user.statusMessage ?? "",
-                "lastActiveAt" : Int(user.lastActiveAt) ?? 0,
-                "tags" : user.tags
+                "lastActiveAt" : Int(user.lastActiveAt) ,
+                "tags" : user.tags,
                 "blockedByMe" : user.blockedByMe,
                 "hasBlockedMe" : user.hasBlockedMe
             ]
+            print(userMap)
+            return userMap;
         } else {
             return nil
         }
@@ -806,7 +812,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                     "metadata" : toJson(dictionary: user.metadata) as Any,
                     "status" : status,
                     "statusMessage" : user.statusMessage ?? "",
-                    "lastActiveAt" : Int(user.lastActiveAt) ?? 0,
+                    "lastActiveAt" : Int(user.lastActiveAt) ,
                     "tags" : user.tags,
                     "scope" : user.scope.rawValue,
                     "joinedAt" : user.joinedAt

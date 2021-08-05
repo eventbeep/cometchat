@@ -413,12 +413,16 @@ class CometChat {
     }
   }
 
-  Future<List<User>?> fetchBlockedUsers() async {
+  Future<List<User>> fetchBlockedUsers() async {
     try {
+      Logger().d('Opened');
       final result = await _channel.invokeMethod('fetchBlockedUsers');
-      print(result);
-      return result.map<User>((e) => User.fromMap(e)).toList();
+      Logger().d(result);
+      print("Blocked Users: $result");
+      final users = result.map<User>((e) => User.fromMap(e)).toList();
+      return users ?? [];
     } catch (e) {
+      Logger().e(e);
       throw e;
     }
   }

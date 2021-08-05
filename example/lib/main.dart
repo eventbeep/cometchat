@@ -333,7 +333,6 @@ class _BlockedUsersState extends State<BlockedUsers> {
           // if (snapshot.connectionState == ConnectionState.waiting) {
           //   return Center(child: CircularProgressIndicator());
           // }
-          print(snapshot.data);
           final list = snapshot.data ?? [];
           return ListView.builder(
               itemCount: list.length,
@@ -352,7 +351,6 @@ class _BlockedUsersState extends State<BlockedUsers> {
   Future<List<User>> _fetchBlockedUsers() async {
     final cometChat = widget.cometChat;
     final blocked = await cometChat.fetchBlockedUsers();
-    print(blocked);
     return blocked;
   }
 }
