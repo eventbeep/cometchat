@@ -49,7 +49,9 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 case "logout":
                     self?.logout(result:result)
                 case "getLoggedInUser":
-                    self?.getLoggedInUser(result:result)
+                    self?.getLoggedInUser(result: result)
+                case "getUser":
+                    self?.getUser(args: args, result: result)
                 case "sendMessage":
                     self?.sendMessage(args: args, result:result)
                 case "sendMediaMessage":
@@ -80,6 +82,12 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                     self?.markAsRead(args: args, result:result)
                 case "callExtension":
                     self?.callExtension(args: args, result:result)
+                case "blockUsers":
+                    self?.blockUsers(args: args, result:result)
+                case "unblockUsers":
+                    self?.unblockUsers(args: args, result:result)
+                case "fetchBlockedUsers":
+                    self?.fetchBlockedUsers(result:result)
                 default:
                     result(FlutterMethodNotImplemented)
             }
@@ -158,6 +166,19 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let user = CometChat.getLoggedInUser()
         print("Current User. \(user?.stringValue() ?? "Null")")
         result(getUserMap(user: user))
+    }
+    
+    private func getUser(args: [String: Any], result: @escaping FlutterResult){
+        let uid = args["uid"] as? String ?? ""
+        
+        CometChat.getUser(UID: uid) { (user) in
+            result(self.getUserMap(user: user));
+        } onError: { (error) in
+            print("Error getting user." )
+            result(FlutterError(code: error?.errorCode ?? "",
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+
     }
     
     private func sendMessage(args: [String: Any], result: @escaping FlutterResult){
@@ -519,7 +540,47 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
     }
     
+    private func blockUsers(args: [String: Any], result: @escaping FlutterResult){
+        let uids = args["uids"] as? [String] ?? []
+        CometChat.blockUsers(uids, onSuccess: { (users) in
+            print("Blocked user successfully.")
+            result(users)
+        }, onError: { (error) in
+           print("Blocked user failed with error: \(error?.errorDescription)")
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        })
+    }
     
+    private func unblockUsers(args: [String: Any], result: @escaping FlutterResult){
+        let uids = args["uids"] as? [String] ?? []
+        
+        CometChat.unblockUsers(uids) { (users) in
+            print("Unblocked user successfully.")
+             result(users)
+        } onError: { (error) in
+            print("Unblocked user failed with error: \(error?.errorDescription)")
+             result(FlutterError(code: error?.errorCode ?? "" ,
+                                 message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
+    
+    private func fetchBlockedUsers(result: @escaping FlutterResult){
+        let blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder().build();
+        
+        blockedUserRequest.fetchNext { (users) in
+            let list = users?.map({ (e) -> [String : Any]? in
+                return self.getUserMap(user: e)
+            })
+            print(list)
+            result(list)
+        } onError: { (error) in
+            print("Error while fetching the blocked user request:  \(error?.errorDescription)");
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
+
     private func getConversationMap(conversation: Conversation?) -> [String: Any]? {
         if let conversation = conversation {
             var conversationWith : [String : Any]?
@@ -693,6 +754,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 "statusMessage" : user.statusMessage ?? "",
                 "lastActiveAt" : Int(user.lastActiveAt) ?? 0,
                 "tags" : user.tags
+                "blockedByMe" : user.blockedByMe,
+                "hasBlockedMe" : user.hasBlockedMe
             ]
         } else {
             return nil

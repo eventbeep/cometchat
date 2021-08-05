@@ -101,8 +101,6 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                 result.error(e.code,e.message,e.details)
             }
         })
-
-
     }
 
     // CometChat functions
