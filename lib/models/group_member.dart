@@ -40,7 +40,7 @@ class GroupMember extends User {
     if (map == null) throw ArgumentError('The type of groupmember map is null');
 
     return GroupMember(
-      scope: map['scope'] ?? '',
+      scope: map['scope']?.toString() ?? '',
       joinedAt: DateTime.fromMillisecondsSinceEpoch(map['joinedAt'] * 1000),
       uid: map['uid'],
       name: map['name'],
