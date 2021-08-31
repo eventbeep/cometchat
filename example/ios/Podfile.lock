@@ -1,19 +1,19 @@
 PODS:
   - cometchat (0.0.1):
-    - CometChatPro (= 2.3.4)
+    - CometChatPro (= 2.4.0)
     - Flutter
-  - CometChatCalls (2.0.3)
-  - CometChatPro (2.3.4):
-    - CometChatCalls (= 2.0.3)
+  - CometChatPro (2.4.0)
   - Flutter (1.0.0)
+  - image_picker (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - cometchat (from `.symlinks/plugins/cometchat/ios`)
   - Flutter (from `Flutter`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
 
 SPEC REPOS:
   trunk:
-    - CometChatCalls
     - CometChatPro
 
 EXTERNAL SOURCES:
@@ -21,12 +21,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cometchat/ios"
   Flutter:
     :path: Flutter
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
 
 SPEC CHECKSUMS:
-  cometchat: b1d482419bc374a548ab69201b1220a21fba070b
-  CometChatCalls: 29ad359266f1dd0fd040433d3cb389c23518aa7c
-  CometChatPro: 1a2db011df96ffa2fc5d0570e3a7a7efab3dbfb9
+  cometchat: 58565b47e0098424a4a10fa6aeef1192c776a983
+  CometChatPro: 0b6aaed0e769ee0e8020e4f22d7e627998f6db81
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  image_picker: e06f7a68f000bd36f552c1847e33cda96ed31f1f
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 

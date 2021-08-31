@@ -208,8 +208,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         CometChat.sendTextMessage(message: textMessage, onSuccess: { (message) in
             print("TextMessage sent successfully. " + message.stringValue())
             let user = CometChat.getLoggedInUser();
-            textMessage.sender = user
-            result(self.getMessageMap(message: textMessage))
+            message.sender = user
+            result(self.getMessageMap(message: message))
         }) { (error) in
             print("TextMessage sending failed with error: " + error!.errorDescription);
             result(FlutterError(code: error?.errorCode ?? "",
@@ -251,8 +251,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         CometChat.sendMediaMessage(message: mediaMessage, onSuccess: { (response) in
             let user = CometChat.getLoggedInUser();
-            mediaMessage.sender = user
-            result(self.getMessageMap(message: mediaMessage))
+            response.sender = user
+            result(self.getMessageMap(message: response))
         }) { (error) in
             result(FlutterError(code: error?.errorCode ?? "",
                                 message: error?.errorDescription, details: error?.debugDescription))
@@ -340,22 +340,14 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         self.messagesRequest = builder.build()
         
         self.messagesRequest.fetchPrevious(onSuccess: { (response) in
-            
-            
             if let messages = response{
-                //print("types ,",messages.map{($0.mes)})
                 let conversationList = messages.map { (eachMsg) -> [String : Any]? in
                     return self.getMessageMap(message: eachMsg)
                     
                 }
                 result(conversationList)
             }
-            
-            
-            
-            
         }) { (error) in
-            
             print("Message receiving failed with error: " + error!.errorDescription);
             result(FlutterError(code: error?.errorCode ?? "" ,
                                 message: error?.errorDescription, details: error?.debugDescription))
@@ -613,17 +605,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         //print(message as Any)
         if let message = message {
             
-            // print(message.messageType)
-            
             var receiver : [String : Any]?
             var receiverType : String
-            //            if let user = message.receiver as? User {
-            //                receiver = getUserMap(user: user)
-            //            } else if let group = message.receiver as? Group {
-            //                receiver = getGroupMap(group: group)
-            //            } else {
-            //                receiver = nil
-            //            }
             switch message.receiverType {
             case .user:
                 receiverType = "user"
@@ -645,7 +628,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 category = "custom"
             }
             
-            var type : String = ""
+            var type : String = "custom"
             if category != "action"{
                 switch message.messageType {
                 case CometChat.MessageType.text:
@@ -713,7 +696,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 ]
                 map.forEach { (key, value) in messageMap[key] = value }
             }
-            
             return messageMap;
             
         } else {
@@ -758,7 +740,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 "blockedByMe" : user.blockedByMe,
                 "hasBlockedMe" : user.hasBlockedMe
             ]
-            print(userMap)
             return userMap;
         } else {
             return nil

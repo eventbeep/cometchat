@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cometchat/models/app_entity.dart';
 import 'package:cometchat/models/conversation.dart';
@@ -132,6 +133,7 @@ class CometChat {
         'parentMessageId': parentMessageId,
       });
 
+      Logger().d('cometchat $result');
       final textMessage = TextMessage.fromMap(result, receiver: receiver);
       return textMessage;
     } catch (e) {
@@ -154,11 +156,12 @@ class CometChat {
             ? (receiver as User).uid
             : (receiver as Group).guid,
         'receiverType': receiverType,
-        'filePath': filePath,
+        'filePath': Platform.isIOS ? 'file://$filePath' : filePath,
         'messageType': messageType,
         'caption': caption,
         'parentMessageId': parentMessageId,
       });
+      Logger().d('cometchat $result');
       final mediaMessage = MediaMessage.fromMap(result, receiver: receiver);
       return mediaMessage;
     } catch (e) {
@@ -416,7 +419,6 @@ class CometChat {
 
   Future<List<User>> fetchBlockedUsers() async {
     try {
-      Logger().d('Opened');
       final result = await _channel.invokeMethod('fetchBlockedUsers');
       Logger().d(result);
       print("Blocked Users: $result");
