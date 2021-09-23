@@ -3,59 +3,96 @@ import UIKit
 import CometChatPro
 
 public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
+    
+    var sink: FlutterEventSink?
+    //Initialize over here in order to get callback from Cometchat
+    var messagesRequest = MessagesRequest.MessageRequestBuilder().set(limit: 50).build(); // for messages obj
+    
+    var convRequest = ConversationRequest.ConversationRequestBuilder(limit: 20).setConversationType(conversationType: .user).build() //for conversation obj
+    
+    var groupInstance = Group(guid: "", name: "", groupType: .public, password: "");
+    
+    var groupMembersRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: "").set(limit: 50).build();
+    
+    var groupsRequest  = GroupsRequest.GroupsRequestBuilder(limit: 50).build();
+    
+    var mediaMessage = MediaMessage(receiverUid: "", fileurl:"", messageType: .image, receiverType: .user);
+    
+    var blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder().build();
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "cometchat", binaryMessenger: registrar.messenger())
         let instance = SwiftCometchatPlugin()
+        
+        let channel = FlutterMethodChannel(name: "cometchat", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: channel)
+        
+        let channelName = "cometchat_message_stream"
+        let eventChannel = FlutterEventChannel(name: channelName, binaryMessenger: registrar.messenger())
+        eventChannel.setStreamHandler(instance)
+        
+        CometChat.messagedelegate = instance
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         //    result("iOS " + UIDevice.current.systemVersion)
-        switch call.method {
-        case "init":
-            initializeCometChat(args: call.arguments as! [String: Any], result:result)
-        case "createUser":
-            createUser(args: call.arguments as! [String: Any], result:result)
-        case "loginWithApiKey":
-            loginWithApiKey(args: call.arguments as! [String: Any], result:result)
-        case "loginWithAuthToken":
-            loginWithAuthToken(args: call.arguments as! [String: Any], result:result)
-        case "logout":
-            logout(args: call.arguments as! [String: Any], result:result)
-        case "getLoggedInUser":
-            getLoggedInUser(result:result)
-        case "sendMessage":
-            sendMessage(args: call.arguments as! [String: Any], result:result)
-        case "sendMediaMessage":
-            sendMediaMessage(args: call.arguments as! [String: Any], result:result)
-        case "fetchPreviousMessages":
-            fetchPreviousMessages(args: call.arguments as! [String: Any], result:result)
-        case "fetchNextConversations":
-            fetchNextConversations(args: call.arguments as! [String: Any], result:result)
-        case "deleteMessage":
-            deleteMessage(args: call.arguments as! [String: Any], result:result)
-        case "createGroup":
-            createGroup(args: call.arguments as! [String: Any], result:result)
-        case "joinGroup":
-            joinGroup(args: call.arguments as! [String: Any], result:result)
-        case "leaveGroup":
-            leaveGroup(args: call.arguments as! [String: Any], result:result)
-        case "deleteGroup":
-            deleteGroup(args: call.arguments as! [String: Any], result:result)
-        case "fetchNextGroupMembers":
-            fetchNextGroupMembers(args: call.arguments as! [String: Any], result:result)
-        case "fetchNextGroups":
-            fetchNextGroups(args: call.arguments as! [String: Any], result:result)
-        case "registerTokenForPushNotification":
-            registerTokenForPushNotification(args: call.arguments as! [String: Any], result:result)
-        case "getUnreadMessageCount":
-            getUnreadMessageCount(args: call.arguments as! [String: Any], result:result)
-        case "markAsRead":
-            markAsRead(args: call.arguments as! [String: Any], result:result)
-        case "callExtension":
-            callExtension(args: call.arguments as! [String: Any], result:result)
-        default:
-            result(FlutterMethodNotImplemented)
+        
+        DispatchQueue.main.async { [weak self] in
+            print("Method is ",call.method)
+            let args = call.arguments as? [String: Any] ?? [String: Any]();
+            switch call.method {
+            case "init":
+                self?.initializeCometChat(args: args, result:result)
+            case "createUser":
+                self?.createUser(args: args, result:result)
+            case "loginWithApiKey":
+                self?.loginWithApiKey(args: args, result:result)
+            case "loginWithAuthToken":
+                self?.loginWithAuthToken(args: args, result:result)
+            case "logout":
+                self?.logout(result:result)
+            case "getLoggedInUser":
+                self?.getLoggedInUser(result: result)
+            case "getUser":
+                self?.getUser(args: args, result: result)
+            case "sendMessage":
+                self?.sendMessage(args: args, result:result)
+            case "sendMediaMessage":
+                self?.sendMediaMessage(args: args, result:result)
+            case "fetchPreviousMessages":
+                self?.fetchPreviousMessages(args: args, result:result)
+            case "fetchNextConversations":
+                self?.fetchNextConversations(args: args, result:result)
+            case "deleteMessage":
+                self?.deleteMessage(args: args, result:result)
+            case "createGroup":
+                self?.createGroup(args: args, result:result)
+            case "joinGroup":
+                self?.joinGroup(args: args, result:result)
+            case "leaveGroup":
+                self?.leaveGroup(args: args, result:result)
+            case "deleteGroup":
+                self?.deleteGroup(args: args, result:result)
+            case "fetchNextGroupMembers":
+                self?.fetchNextGroupMembers(args: args, result:result)
+            case "fetchNextGroups":
+                self?.fetchNextGroups(args: args, result:result)
+            case "registerTokenForPushNotification":
+                self?.registerTokenForPushNotification(args: args, result:result)
+            case "getUnreadMessageCount":
+                self?.getUnreadMessageCount(result:result)
+            case "markAsRead":
+                self?.markAsRead(args: args, result:result)
+            case "callExtension":
+                self?.callExtension(args: args, result:result)
+            case "blockUsers":
+                self?.blockUsers(args: args, result:result)
+            case "unblockUsers":
+                self?.unblockUsers(args: args, result:result)
+            case "fetchBlockedUsers":
+                self?.fetchBlockedUsers(result:result)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
         }
     }
     
@@ -118,7 +155,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func logout(args: [String: Any], result: @escaping FlutterResult){
+    private func logout(result: @escaping FlutterResult){
         CometChat.logout { (message) in
             result(String(message))
         } onError: { (error) in
@@ -133,10 +170,23 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         result(getUserMap(user: user))
     }
     
+    private func getUser(args: [String: Any], result: @escaping FlutterResult){
+        let uid = args["uid"] as? String ?? ""
+        
+        CometChat.getUser(UID: uid) { (user) in
+            result(self.getUserMap(user: user));
+        } onError: { (error) in
+            print("Error getting user." )
+            result(FlutterError(code: error?.errorCode ?? "",
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    
     private func sendMessage(args: [String: Any], result: @escaping FlutterResult){
-        let receiverID = args["receiverId"] as! String
-        let messageText = args["messageText"] as! String
-        let receiver = args["receiverType"] as! String
+        let receiverID = args["receiverId"] as? String ?? ""
+        let messageText = args["messageText"] as? String ?? ""
+        let receiver = args["receiverType"] as? String ?? ""
         _ = args["parentMessageId"] as? Int?
         
         print(messageText)
@@ -157,7 +207,9 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         CometChat.sendTextMessage(message: textMessage, onSuccess: { (message) in
             print("TextMessage sent successfully. " + message.stringValue())
-            result(self.getMessageMap(message: textMessage))
+            let user = CometChat.getLoggedInUser();
+            message.sender = user
+            result(self.getMessageMap(message: message))
         }) { (error) in
             print("TextMessage sending failed with error: " + error!.errorDescription);
             result(FlutterError(code: error?.errorCode ?? "",
@@ -165,12 +217,54 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func sendMediaMessage(args: [String: Any], result: @escaping FlutterResult){}
+    private func sendMediaMessage(args: [String: Any], result: @escaping FlutterResult){
+        
+        let receiverid = args["receiverId"] as? String ?? ""
+        let receiverType = args["receiverType"] as? String ?? ""
+        let msgType = args["messageType"] as? String ?? ""
+        
+        let filePath = args["filePath"] as? String ?? ""
+        let caption = args["caption"] as? String ?? ""
+        let parentMessageId = args["parentMessageId"] as? Int ?? 0
+        
+        let messageType : CometChat.MessageType
+        switch msgType {
+        case "image":
+            messageType = .image
+        case "video":
+            messageType = .video
+        case "audio":
+            messageType = .audio
+        default:
+            messageType = .file
+        }
+        
+        let mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType:  messageType, receiverType: .user)
+        
+        if (caption == ""){
+            mediaMessage.caption = caption
+        }
+        
+        if (parentMessageId > 0) {
+            mediaMessage.parentMessageId = parentMessageId
+        }
+        
+        CometChat.sendMediaMessage(message: mediaMessage, onSuccess: { (response) in
+            let user = CometChat.getLoggedInUser();
+            response.sender = user
+            result(self.getMessageMap(message: response))
+        }) { (error) in
+            result(FlutterError(code: error?.errorCode ?? "",
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
     
     private func fetchNextConversations(args: [String: Any], result: @escaping FlutterResult){
+        
         let limit = args["limit"] as? Int ?? 50
         let typeValue = args["type"] as? String
         
+        //      If we want to fetch by Conversations
         var builder = ConversationRequest.ConversationRequestBuilder(limit: limit)
         
         if let typeValue = typeValue {
@@ -181,42 +275,311 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             }
         }
         
-        let convRequest = builder.build()
-        
-        print("Test 1")
-        
-        convRequest.fetchNext { (conversations) in
-//            print("success of convRequest \(conversations)")
-            print("Test 2")
-            let conversationList = conversations.map { (e) -> [String : Any]? in
-             return self.getConversationMap(conversation: e)
+        self.convRequest = builder.build()
+        self.convRequest.fetchNext(onSuccess: { (conversationList) in
+            let list = conversationList.map { (e) -> [String : Any]? in
+                return self.getConversationMap(conversation: e)
             }
-            print("Test 2")
-            result(conversationList)
-        } onError: { (error) in
-            print("here exception \(String(describing: error?.errorDescription))")
-            result(FlutterError(code: error?.errorCode ?? "",
+            //print("list count ",list.count)
+            result(list)
+        }) { (exception) in
+            print("here exception \(String(describing: exception?.errorDescription))")
+            result(FlutterError(code: exception?.errorCode ?? "",
+                                message: exception?.errorDescription, details: exception?.debugDescription))
+        }
+        
+        //        If we Want to fetch by Messages
+        //        self.messagesRequest = MessagesRequest.MessageRequestBuilder().set(limit: limit).build();
+        //        self.messagesRequest.fetchNext(onSuccess: { (response) in
+        //            print("Message count is ,", response?.count ?? 0)
+        //
+        //            if let messages = response{
+        //                let conversationList = messages.map { (eachMsg) -> [String : Any]? in
+        //                    if let conversation = CometChat.getConversationFromMessage(eachMsg){
+        //                        return self.getConversationMap(conversation: conversation)
+        //                    }
+        //                    return [:]
+        //                }
+        //                result(conversationList)
+        //            }
+        //
+        //        }) { (error) in
+        //
+        //          print("Message receiving failed with error: " + error!.errorDescription);
+        //          print("here exception \(String(describing: error?.errorDescription))")
+        //          result(FlutterError(code: error?.errorCode ?? "",
+        //                                message: error?.errorDescription, details: error?.debugDescription))
+        //        }
+    }
+    
+    private func fetchPreviousMessages(args: [String: Any], result: @escaping FlutterResult){
+        let limit = args["limit"] as? Int ?? 50
+        let uid = args["uid"] as? String ?? ""
+        let guid = args["guid"] as? String ?? ""
+        let searchTerm = args["searchTerm"] as? String ?? ""
+        let messageId = args["messageId"] as? Int ?? 0
+        
+        var builder = MessagesRequest.MessageRequestBuilder()
+        
+        if (limit > 0) {
+            builder = builder.set(limit: limit)
+        }
+        
+        if (uid != "") {
+            builder = builder.set(uid: uid)
+        } else if (guid != "") {
+            builder = builder.set(guid: guid)
+        }
+        if (searchTerm != ""){
+            builder = builder.set(searchKeyword: searchTerm)
+        }
+        if (messageId > 0){
+            builder = builder.set(messageID: messageId)
+        }
+        
+        self.messagesRequest = builder.build()
+        
+        self.messagesRequest.fetchPrevious(onSuccess: { (response) in
+            if let messages = response{
+                let conversationList = messages.map { (eachMsg) -> [String : Any]? in
+                    return self.getMessageMap(message: eachMsg)
+                    
+                }
+                result(conversationList)
+            }
+        }) { (error) in
+            print("Message receiving failed with error: " + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func deleteMessage(args: [String: Any], result: @escaping FlutterResult){
+        let msgID = args["messageId"] as? Int ?? 1
+        
+        CometChat.delete(messageId: msgID, onSuccess: { (baseMessage) in
+            //print("message deleted successfully. \(baseMessage)")
+            result(nil)
+        }) { (error) in
+            //print("delete message failed with error: \(error.errorDescription)")
+            result(FlutterError(code: error.errorCode ,
+                                message: error.errorDescription, details: error.debugDescription))
+        }
+        
+    }
+    private func createGroup(args: [String: Any], result: @escaping FlutterResult){
+        
+        let guid = args["guid"] as? String ?? ""
+        let groupName = args["groupName"] as? String ?? ""
+        let grpType = args["groupType"] as? String ?? ""
+        let groupType : CometChat.groupType = grpType == "private" ? .private : grpType == "public" ? .private : .password
+        let password = args["password"] as? String ?? nil //mandatory in case of password protected group type
+        
+        self.groupInstance = Group(guid: guid, name: groupName, groupType: groupType, password: password);
+        
+        CometChat.createGroup(group: self.groupInstance, onSuccess: { (group) in
+            
+            print("Group created successfully. " + group.stringValue())
+            result(self.getGroupMap(group: group))
+            
+        }) { (error) in
+            
+            print("Group creation failed with error:" + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func joinGroup(args: [String: Any], result: @escaping FlutterResult){
+        
+        let guid = args["guid"] as? String ?? ""
+        let grpType = args["groupType"] as? String ?? ""
+        let groupType : CometChat.groupType = grpType == "private" ? .private : grpType == "public" ? .private : .password
+        let password = args["password"] as? String ?? nil //mandatory in case of password protected group type
+        
+        CometChat.joinGroup(GUID: guid, groupType: groupType, password: password, onSuccess: { (group) in
+            
+            print("Group joined successfully. " + group.stringValue())
+            result(self.getGroupMap(group: group))
+            
+        }) { (error) in
+            
+            print("Group joining failed with error:" + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func leaveGroup(args: [String: Any], result: @escaping FlutterResult){
+        
+        let guid = args["guid"] as? String ?? ""
+        CometChat.leaveGroup(GUID: guid, onSuccess: { (response) in
+            
+            print("Left group successfully.")
+            result(nil)
+            
+        }) { (error) in
+            
+            print("Group leaving failed with error:" + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func deleteGroup(args: [String: Any], result: @escaping FlutterResult){
+        
+        let guid = args["guid"] as? String ?? ""
+        CometChat.deleteGroup(GUID: guid, onSuccess: { (response) in
+            
+            print("Group deleted successfully.")
+            result(nil)
+            
+        }) { (error) in
+            
+            print("Group delete failed with error: " + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func fetchNextGroupMembers(args: [String: Any], result: @escaping FlutterResult){
+        
+        let limit = args["limit"] as? Int ?? 50
+        let guid = args["guid"] as? String ?? ""
+        
+        self.groupMembersRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: guid).set(limit: limit).build();
+        
+        groupMembersRequest.fetchNext(onSuccess: { (groupMembers) in
+            
+            result(self.getGroupMemberMap(users: groupMembers))
+            
+        }) { (error) in
+            
+            print("Group Member list fetching failed with error:" + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    private func fetchNextGroups(args: [String: Any], result: @escaping FlutterResult){
+        
+        let limit = args["limit"] as? Int ?? 50
+        
+        self.groupsRequest  = GroupsRequest.GroupsRequestBuilder(limit: limit).build();
+        groupsRequest.fetchNext(onSuccess: { (groups) in
+            
+            let list = groups.map { (eachGrp) -> [String : Any]? in
+                return self.getGroupMap(group: eachGrp)
+            }
+            result(list)
+            
+        }) { (error) in
+            
+            print("Groups list fetching failed with error:" + error!.errorDescription);
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+        
+    }
+    
+    private func getUnreadMessageCount(result: @escaping FlutterResult){
+        CometChat.getUnreadMessageCount(onSuccess: { (response) in
+            print("Unread message count: \(response)")
+            result(response)
+            
+        }) { (error) in
+            print("Error in fetching unread count: \(error)")
+            result(FlutterError(code: error?.errorCode ?? "" ,
                                 message: error?.errorDescription, details: error?.debugDescription))
         }
     }
     
-    private func fetchPreviousMessages(args: [String: Any], result: @escaping FlutterResult){}
-    private func deleteMessage(args: [String: Any], result: @escaping FlutterResult){}
-    private func createGroup(args: [String: Any], result: @escaping FlutterResult){}
-    private func joinGroup(args: [String: Any], result: @escaping FlutterResult){}
-    private func leaveGroup(args: [String: Any], result: @escaping FlutterResult){}
-    private func deleteGroup(args: [String: Any], result: @escaping FlutterResult){}
-    private func fetchNextGroupMembers(args: [String: Any], result: @escaping FlutterResult){}
-    private func fetchNextGroups(args: [String: Any], result: @escaping FlutterResult){}
-    private func registerTokenForPushNotification(args: [String: Any], result: @escaping FlutterResult){}
-    private func getUnreadMessageCount(args: [String: Any], result: @escaping FlutterResult){}
-    private func markAsRead(args: [String: Any], result: @escaping FlutterResult){}
-    private func callExtension(args: [String: Any], result: @escaping FlutterResult){}
+    private func markAsRead(args: [String: Any], result: @escaping FlutterResult){
+        let messageId = args["messageId"] as? Int ?? 50
+        let senderID = args["senderId"] as? String ?? ""
+        
+        CometChat.markAsRead(messageId: messageId, receiverId: senderID, receiverType: .user)
+    }
+    
+    private func callExtension(args: [String: Any], result: @escaping FlutterResult){
+        
+        let slug = args["slug"] as? String ?? ""
+        let requestType = args["requestType"] as? String ?? ""
+        let postType : HTTPMethod = requestType == "post" ? .post : .get
+        let endPoint = args["endPoint"] as? String ?? ""
+        let body = args["body"] as? [String:Any] ?? [:]
+        
+        
+        CometChat.callExtension(slug: slug,
+                                type: postType,
+                                endPoint: endPoint,
+                                body: body) { (response) in
+            
+            result(response)
+        } onError: { (error) in
+            
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
+    
+    private func registerTokenForPushNotification(args: [String: Any], result: @escaping FlutterResult){
+        let token = args["token"] as? String ?? ""
+        CometChat.registerTokenForPushNotification(token: token) { (response) in
+            result(nil)
+        } onError: { (error) in
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
+    
+    private func blockUsers(args: [String: Any], result: @escaping FlutterResult){
+        let uids = args["uids"] as? [String] ?? []
+        CometChat.blockUsers(uids, onSuccess: { (users) in
+            print("Blocked user successfully.")
+            result(users)
+        }, onError: { (error) in
+            print("Blocked user failed with error: \(error?.errorDescription)")
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        })
+    }
+    
+    private func unblockUsers(args: [String: Any], result: @escaping FlutterResult){
+        let uids = args["uids"] as? [String] ?? []
+        
+        CometChat.unblockUsers(uids) { (users) in
+            print("Unblocked user successfully.")
+            result(users)
+        } onError: { (error) in
+            print("Unblocked user failed with error: \(error?.errorDescription)")
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        }
+    }
+    
+    private func fetchBlockedUsers(result: @escaping FlutterResult){
+        blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder().build();
+        blockedUserRequest.fetchNext (onSuccess: { (blockedUsers) in
+            let users = blockedUsers ?? []
+            
+            let list = users.map({ (e) -> [String : Any]? in
+                return self.getUserMap(user: e)
+            })
+            result(list)
+            
+        }, onError: { (error) in
+            print("exco Error while fetching the blocked user request:  \(error?.errorDescription)");
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+        })
+    }
     
     private func getConversationMap(conversation: Conversation?) -> [String: Any]? {
         if let conversation = conversation {
             var conversationWith : [String : Any]?
             var conversationType : String
+            
             switch conversation.conversationType {
             case .user:
                 conversationType = "user"
@@ -226,11 +589,12 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 conversationWith = getGroupMap(group: conversation.conversationWith as? Group)
             }
             return [
-                "conversationId" : conversation.conversationId as Any,
+                "conversationId" : conversation.conversationId ?? "",
                 "conversationType" : conversationType,
-                "conversationWith" : conversationWith as Any,
-                "updatedAt" : conversation.updatedAt,
+                "conversationWith" : conversationWith ?? [:],
+                "updatedAt" : Int(conversation.updatedAt) ,
                 "unreadMessageCount" : conversation.unreadMessageCount,
+                "lastMessage":self.getMessageMap(message: conversation.lastMessage) ?? [:]
             ]
         } else {
             return nil
@@ -238,20 +602,11 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func getMessageMap(message: BaseMessage?) -> [String: Any]? {
-        print(message as Any)
+        //print(message as Any)
         if let message = message {
-            
-            print(message.messageType)
             
             var receiver : [String : Any]?
             var receiverType : String
-            //            if let user = message.receiver as? User {
-            //                receiver = getUserMap(user: user)
-            //            } else if let group = message.receiver as? Group {
-            //                receiver = getGroupMap(group: group)
-            //            } else {
-            //                receiver = nil
-            //            }
             switch message.receiverType {
             case .user:
                 receiverType = "user"
@@ -261,23 +616,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 receiver = getGroupMap(group: message.receiver as? Group)
             }
             
-            var type : String
-            switch message.messageType {
-            case CometChat.MessageType.text:
-                type = "text"
-            case CometChat.MessageType.image:
-                type = "image"
-            case CometChat.MessageType.video:
-                type = "video"
-            case CometChat.MessageType.file:
-                type = "file"
-            case CometChat.MessageType.audio:
-                type = "audio"
-            default:
-                type = "custom"
-            }
-            
-            var category : String
+            var category : String = "custom"
             switch message.messageCategory {
             case CometChat.MessageCategory.message:
                 category = "message"
@@ -288,6 +627,28 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             default:
                 category = "custom"
             }
+            
+            var type : String = "custom"
+            if category != "action"{
+                switch message.messageType {
+                case CometChat.MessageType.text:
+                    type = "text"
+                case CometChat.MessageType.image:
+                    type = "image"
+                case CometChat.MessageType.video:
+                    type = "video"
+                case CometChat.MessageType.file:
+                    type = "file"
+                case CometChat.MessageType.audio:
+                    type = "audio"
+                default:
+                    type = "custom"
+                }
+            }else{
+                type = "action"
+            }
+            
+            
             
             var messageMap = [
                 "id" : message.id as Any,
@@ -329,13 +690,12 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 let map = [
                     "message" : action.message as Any,
                     "rawData" : action.rawData as Any,
-                    "action" : action.action as Any,
-                    "oldScope" : action.oldScope,
-                    "newScope" : action.newScope,
+                    "action" : action.action?.rawValue as Any,
+                    "oldScope" : action.oldScope.rawValue,
+                    "newScope" : action.newScope.rawValue,
                 ]
                 map.forEach { (key, value) in messageMap[key] = value }
             }
-            
             return messageMap;
             
         } else {
@@ -348,7 +708,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             return [
                 "fileName" : attachment.fileName,
                 "fileExtension" : attachment.fileExtension,
-                "fileSize" : attachment.fileSize,
+                "fileSize" : Int(attachment.fileSize) ,
                 "fileMimeType" : attachment.fileMimeType as Any,
                 "fileUrl" : attachment.fileUrl as Any,
             ]
@@ -358,7 +718,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
     
     private func getUserMap(user: User?) -> [String: Any]? {
-        print(user as Any)
         if let user = user {
             let status : String
             switch user.status {
@@ -367,18 +726,21 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             default:
                 status = "offline"
             }
-            return [
-                "uid" : user.uid as Any,
-                "name" : user.name as Any,
-                "avatar" : user.avatar as Any,
-                "link" : user.link as Any,
-                "role" : user.role as Any,
+            let userMap = [
+                "uid" : user.uid ?? "",
+                "name" : user.name ?? "",
+                "avatar" : user.avatar ?? "",
+                "link" : user.link ?? "",
+                "role" : user.role ?? "",
                 "metadata" : toJson(dictionary: user.metadata) as Any,
                 "status" : status,
-                "statusMessage" : user.statusMessage as Any,
-                "lastActiveAt" : user.lastActiveAt as Any,
-                "tags" : user.tags
+                "statusMessage" : user.statusMessage ?? "",
+                "lastActiveAt" : Int(user.lastActiveAt) ,
+                "tags" : user.tags,
+                "blockedByMe" : user.blockedByMe,
+                "hasBlockedMe" : user.hasBlockedMe
             ]
+            return userMap;
         } else {
             return nil
         }
@@ -387,25 +749,55 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     private func getGroupMap(group: Group?)-> [String: Any]? {
         if let group = group {
             return [
-                "guid" : group.guid,
-                "name" : group.name as Any,
-                "type" : group.groupType,
-                "password" : group.password as Any,
-                "icon" : group.icon as Any,
-                "description" : group.description,
-                "owner" : group.owner as Any,
+                "guid" : group.guid ,
+                "name" : group.name ?? "",
+                "type" : group.groupType.rawValue,
+                "password" : group.password ?? "",
+                "icon" : group.icon ?? "",
+                "description" : group.description ,
+                "owner" : group.owner ?? "",
                 "metadata" : toJson(dictionary: group.metadata) as Any,
-                "createdAt" : group.createdAt as Any,
-                "updatedAt" : group.updatedAt as Any,
+                "createdAt" : group.createdAt ,
+                "updatedAt" : group.updatedAt,
                 "hasJoined" : group.hasJoined,
                 "joinedAt" : group.joinedAt,
-                "scope" : group.scope,
+                "scope" : group.scope.rawValue,
                 "membersCount" : group.membersCount,
                 "tags" : group.tags
             ]
         } else {
             return nil
         }
+    }
+    
+    private func getGroupMemberMap(users: [GroupMember]) -> [[String:Any]]{
+        var usersMap = [[String:Any]]()
+        users.forEach { (user) in
+            
+            let status : String
+            switch user.status {
+            case .online:
+                status = "online"
+            default:
+                status = "offline"
+            }
+            let eachUser = [
+                "uid" : user.uid ?? "",
+                "name" : user.name ?? "",
+                "avatar" : user.avatar ?? "",
+                "link" : user.link ?? "",
+                "role" : user.role ?? "",
+                "metadata" : toJson(dictionary: user.metadata) as Any,
+                "status" : status,
+                "statusMessage" : user.statusMessage ?? "",
+                "lastActiveAt" : Int(user.lastActiveAt) ,
+                "tags" : user.tags,
+                "scope" : user.scope.rawValue,
+                "joinedAt" : user.joinedAt
+            ]
+            usersMap.append(eachUser)
+        }
+        return usersMap
     }
     
     private func toJson(dictionary: [String: Any]?)-> String? {
@@ -423,3 +815,44 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     }
 }
 
+
+//MARK: - ------------ Cometchat Delegates -----------------
+extension SwiftCometchatPlugin : CometChatMessageDelegate{
+    
+    public func onTextMessageReceived(textMessage: TextMessage) {
+        guard let eventSink = self.sink else { return }
+        let parsedMsg = self.getMessageMap(message: textMessage)
+        print("From textmsg ",parsedMsg)
+        eventSink(parsedMsg)
+        //return parsedMsg obj back to flutter
+    }
+    
+    public func onMediaMessageReceived(mediaMessage: MediaMessage) {
+        guard let eventSink = self.sink else { return }
+        let parsedMsg = self.getMessageMap(message: mediaMessage)
+        print("From mediaMsg ",parsedMsg)
+        eventSink(parsedMsg)
+    }
+    
+    public func onCustomMessageReceived(customMessage: CustomMessage) {
+        let parsedMsg = self.getMessageMap(message: customMessage)
+        print("From customMsg ",parsedMsg)
+        
+    }
+    
+}
+
+//MARK: - ------------- FlutterEventChannel Delegates -----------------
+extension SwiftCometchatPlugin : FlutterStreamHandler{
+    
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.sink = events
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.sink = nil
+        return nil
+    }
+    
+}

@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:cometchat/models/app_entity.dart';
 import 'package:cometchat/models/conversation.dart';
 import 'package:cometchat/models/group.dart';
 import 'package:cometchat/models/group_member.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 import 'models/base_message.dart';
 import 'models/media_message.dart';
@@ -92,6 +95,17 @@ class CometChat {
     }
   }
 
+  Future<User?> getUser(String uid) async {
+    try {
+      final result = await _channel.invokeMethod('getUser', {'uid': uid});
+
+      final user = User.fromMap(result);
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<User?> getLoggedInUser() async {
     try {
       final result = await _channel.invokeMethod('getLoggedInUser');
@@ -105,21 +119,25 @@ class CometChat {
 
   Future<TextMessage> sendMessage(
     String messageText,
-    String receiverId,
+    AppEntity receiver,
     String receiverType, {
     int? parentMessageId,
   }) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
-        'receiverId': receiverId,
+        'receiverId': (receiverType == 'user')
+            ? (receiver as User).uid
+            : (receiver as Group).guid,
         'receiverType': receiverType,
         'messageText': messageText,
         'parentMessageId': parentMessageId,
       });
 
-      final textMessage = TextMessage.fromMap(result);
+      Logger().d('cometchat $result');
+      final textMessage = TextMessage.fromMap(result, receiver: receiver);
       return textMessage;
     } catch (e) {
+      Logger().e(e);
       throw e;
     }
   }
@@ -127,21 +145,29 @@ class CometChat {
   Future<MediaMessage> sendMediaMessage(
     String filePath,
     String messageType,
-    String receiverId,
+    AppEntity receiver,
     String receiverType, {
     String? caption,
     int? parentMessageId,
   }) async {
-    final result = await _channel.invokeMethod('sendMediaMessage', {
-      'receiverId': receiverId,
-      'receiverType': receiverType,
-      'filePath': filePath,
-      'messageType': messageType,
-      'caption': caption,
-      'parentMessageId': parentMessageId,
-    });
-    final mediaMessage = MediaMessage.fromMap(result);
-    return mediaMessage;
+    try {
+      final result = await _channel.invokeMethod('sendMediaMessage', {
+        'receiverId': (receiverType == 'user')
+            ? (receiver as User).uid
+            : (receiver as Group).guid,
+        'receiverType': receiverType,
+        'filePath': Platform.isIOS ? 'file://$filePath' : filePath,
+        'messageType': messageType,
+        'caption': caption,
+        'parentMessageId': parentMessageId,
+      });
+      Logger().d('cometchat $result');
+      final mediaMessage = MediaMessage.fromMap(result, receiver: receiver);
+      return mediaMessage;
+    } catch (e) {
+      Logger().e(e);
+      throw e;
+    }
   }
 
   // Future<CustomMessage> sendCustomMessage(
@@ -198,6 +224,21 @@ class CometChat {
         'type': conversationType,
       });
       return result.map<Conversation>((e) => Conversation.fromMap(e)).toList();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<Conversation> getConversation(
+    String conversationWith,
+    String conversationType,
+  ) async {
+    try {
+      final result = await _channel.invokeMethod('getConversation', {
+        'conversationWith': conversationWith,
+        'conversationType': conversationType,
+      });
+      return Conversation.fromMap(result);
     } catch (e) {
       throw e;
     }
@@ -284,15 +325,13 @@ class CometChat {
     }
   }
 
-  Future<List<GroupMember>?> fetchNextGroupMembers(
-    String guid, {
-    int? limit,
-  }) async {
+  Future<List<GroupMember>> fetchNextGroupMembers(String guid,
+      {int? limit, String? keyword}) async {
+    print("$guid,$keyword ");
     try {
-      final result = await _channel.invokeMethod('fetchNextGroupMembers', {
-        'guid': guid,
-        'limit': limit,
-      });
+      final result = await _channel.invokeMethod('fetchNextGroupMembers',
+          {'guid': guid, 'limit': limit, 'keyword': keyword});
+      Logger().d(result);
       return result.map<GroupMember>((e) => GroupMember.fromMap(e)).toList();
     } catch (e) {
       throw e;
@@ -313,7 +352,11 @@ class CometChat {
     try {
       final count = await _channel.invokeMethod('getUnreadMessageCount');
       final countMap = Map<String, dynamic>.from(count);
-      return countMap.map((k, v) => MapEntry(k, Map<String, int>.from(v)));
+      final result =
+          countMap.map((k, v) => MapEntry(k, Map<String, int>.from(v)));
+      if (!result.containsKey('group')) result['group'] = {};
+      if (!result.containsKey('user')) result['user'] = {};
+      return result;
     } catch (e) {
       throw e;
     }
@@ -339,7 +382,7 @@ class CometChat {
     String slug,
     String requestType,
     String endPoint,
-    Map<String, dynamic> body,
+    Map<String, dynamic>? body,
   ) async {
     try {
       final result = await _channel.invokeMethod('callExtension', {
@@ -351,6 +394,38 @@ class CometChat {
       final map = json.decode(result);
       return Map<String, dynamic>.from(map);
     } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> blockUser(List<String>? uids) async {
+    try {
+      final result = await _channel.invokeMethod('blockUsers', {'uids': uids});
+      return Map<String, dynamic>.from(result);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> unblockUser(List<String>? uids) async {
+    try {
+      final result =
+          await _channel.invokeMethod('unblockUsers', {'uids': uids});
+      return Map<String, dynamic>.from(result);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<List<User>> fetchBlockedUsers() async {
+    try {
+      final result = await _channel.invokeMethod('fetchBlockedUsers');
+      Logger().d(result);
+      print("Blocked Users: $result");
+      final users = result.map<User>((e) => User.fromMap(e)).toList();
+      return users ?? [];
+    } catch (e) {
+      Logger().e(e);
       throw e;
     }
   }
