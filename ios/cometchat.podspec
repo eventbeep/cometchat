@@ -15,7 +15,7 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'CometChatPro', '2.3.4'
+  s.dependency 'CometChatPro', '3.0.3'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.
