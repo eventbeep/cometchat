@@ -365,12 +365,14 @@ class CometChat {
   Future<void> markAsRead(
     int messageId,
     String senderId,
+    String receiverId,
     String receiverType,
   ) async {
     try {
       await _channel.invokeMethod('markAsRead', {
         'messageId': messageId,
         'senderId': senderId,
+        'receiverId': receiverId,
         'receiverType': receiverType,
       });
     } catch (e) {

@@ -188,9 +188,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let messageText = args["messageText"] as? String ?? ""
         let receiver = args["receiverType"] as? String ?? ""
         _ = args["parentMessageId"] as? Int?
-        
-        print(messageText)
-        
+                
         let receiverType : CometChat.ReceiverType
         switch receiver {
         case "user":
@@ -220,7 +218,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     private func sendMediaMessage(args: [String: Any], result: @escaping FlutterResult){
         
         let receiverid = args["receiverId"] as? String ?? ""
-        let receiverType = args["receiverType"] as? String ?? ""
+        let receiver = args["receiverType"] as? String ?? ""
         let msgType = args["messageType"] as? String ?? ""
         
         let filePath = args["filePath"] as? String ?? ""
@@ -239,7 +237,15 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             messageType = .file
         }
         
-        let mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType:  messageType, receiverType: .user)
+        let receiverType : CometChat.ReceiverType
+        switch receiver {
+        case "user":
+            receiverType =  CometChat.ReceiverType.user
+        default:
+            receiverType =   CometChat.ReceiverType.group
+        }
+        
+        let mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType:  messageType, receiverType: receiverType)
         
         if (caption == ""){
             mediaMessage.caption = caption
@@ -496,9 +502,19 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
     
     private func markAsRead(args: [String: Any], result: @escaping FlutterResult){
         let messageId = args["messageId"] as? Int ?? 50
-        let senderID = args["senderId"] as? String ?? ""
+        let senderId = args["senderId"] as? String ?? ""
+        let receiverId = args["receiverId"] as? String ?? ""
+        let receiver = args["receiverType"] as? String ?? ""
         
-        CometChat.markAsRead(messageId: messageId, receiverId: senderID, receiverType: .user)
+        let receiverType : CometChat.ReceiverType
+        switch receiver {
+        case "user":
+            receiverType =  CometChat.ReceiverType.user
+        default:
+            receiverType =   CometChat.ReceiverType.group
+        }
+
+        CometChat.markAsRead(messageId: messageId, receiverId: receiverId, receiverType: receiverType, messageSender: senderId)
     }
     
     private func callExtension(args: [String: Any], result: @escaping FlutterResult){

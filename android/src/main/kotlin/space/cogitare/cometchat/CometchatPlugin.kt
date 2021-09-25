@@ -699,8 +699,9 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     private fun markAsRead(call: MethodCall, result: Result) {
         val messageId: Int = call.argument("messageId") ?: -1
         val senderId: String = call.argument("senderId") ?: ""
+        val receiverId: String = call.argument("receiverId") ?: ""
         val receiverType: String = call.argument("receiverType") ?: ""
-        CometChat.markAsRead(messageId, senderId, receiverType)
+        CometChat.markAsRead(messageId, receiverId, receiverType, senderId)
         result.success(null)
         Log.d("markAsRead", "Success: $messageId $senderId $receiverType")
     }
