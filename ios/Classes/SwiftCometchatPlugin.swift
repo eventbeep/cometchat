@@ -187,7 +187,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let receiverID = args["receiverId"] as? String ?? ""
         let messageText = args["messageText"] as? String ?? ""
         let receiver = args["receiverType"] as? String ?? ""
-        _ = args["parentMessageId"] as? Int?
+        let parentMessageId = args["parentMessageId"] as? Int ?? 0
                 
         let receiverType : CometChat.ReceiverType
         switch receiver {
@@ -198,10 +198,10 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
         
         let textMessage = TextMessage(receiverUid: receiverID , text: messageText, receiverType: receiverType)
-        // TODO
-        //        if parentMessageId != nil {
-        //            textMessage.parentMessageId = parentMessageId
-        //        }
+
+        if parentMessageId > 0 {
+            textMessage.parentMessageId = parentMessageId
+        }
         
         CometChat.sendTextMessage(message: textMessage, onSuccess: { (message) in
             print("TextMessage sent successfully. " + message.stringValue())
@@ -247,7 +247,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         let mediaMessage = MediaMessage(receiverUid: receiverid, fileurl:filePath, messageType:  messageType, receiverType: receiverType)
         
-        if (caption == ""){
+        if (caption != ""){
             mediaMessage.caption = caption
         }
         
