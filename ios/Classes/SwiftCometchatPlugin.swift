@@ -37,7 +37,6 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         //    result("iOS " + UIDevice.current.systemVersion)
         
         DispatchQueue.main.async { [weak self] in
-            print("Method is ",call.method)
             let args = call.arguments as? [String: Any] ?? [String: Any]();
             switch call.method {
             case "init":
@@ -521,17 +520,17 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         
         let slug = args["slug"] as? String ?? ""
         let requestType = args["requestType"] as? String ?? ""
-        let postType : HTTPMethod = requestType == "post" ? .post : .get
+        let postType : HTTPMethod = requestType == "POST" ? .post : .get
         let endPoint = args["endPoint"] as? String ?? ""
-        let body = args["body"] as? [String:Any] ?? [:]
-        
+        let body = args["body"] as? [String:Any]
         
         CometChat.callExtension(slug: slug,
                                 type: postType,
                                 endPoint: endPoint,
                                 body: body) { (response) in
-            
+//            print("Response: \(response)")
             result(response)
+            
         } onError: { (error) in
             
             result(FlutterError(code: error?.errorCode ?? "" ,

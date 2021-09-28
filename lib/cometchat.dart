@@ -387,12 +387,15 @@ class CometChat {
     Map<String, dynamic>? body,
   ) async {
     try {
+      if (Platform.isIOS && endPoint.isNotEmpty && endPoint[0] == '/')
+        endPoint = endPoint.substring(1);
       final result = await _channel.invokeMethod('callExtension', {
         'slug': slug,
         'requestType': requestType,
         'endPoint': endPoint,
         'body': body,
       });
+      if (Platform.isIOS) return <String, dynamic>{'data': result};
       final map = json.decode(result);
       return Map<String, dynamic>.from(map);
     } catch (e) {
