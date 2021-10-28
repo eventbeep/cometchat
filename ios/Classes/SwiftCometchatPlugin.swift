@@ -325,10 +325,12 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let messageId = args["messageId"] as? Int ?? 0
         
         var builder = MessagesRequest.MessageRequestBuilder()
-        
+        builder = builder.set(categories: ["message"])
+
         if (limit > 0) {
             builder = builder.set(limit: limit)
         }
+        
         
         if (uid != "") {
             builder = builder.set(uid: uid)
