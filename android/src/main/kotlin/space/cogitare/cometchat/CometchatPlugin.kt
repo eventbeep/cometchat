@@ -6,6 +6,7 @@ import androidx.annotation.NonNull
 import com.cometchat.pro.core.*
 import com.cometchat.pro.core.CometChat.CallbackListener
 import com.cometchat.pro.exceptions.CometChatException
+import com.cometchat.pro.constants.CometChatConstants
 import com.cometchat.pro.models.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
@@ -70,6 +71,7 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
             "blockUsers" -> blockUsers(call, result)
             "unblockUsers" -> unblockUsers(call, result)
             "fetchBlockedUsers" -> fetchBlockedUsers(result)
+            "deleteConversation" -> deleteConversation(call, result)
 
 
             else -> result.notImplemented()
@@ -731,6 +733,24 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
                     result.error(e.code, e.message, e.details)
                 }
             })
+    }
+
+    private fun deleteConversation(call: MethodCall, result: Result){
+
+        val uid: String = call.argument("uid")!!
+         CometChat.deleteConversation(uid, CometChatConstants.RECEIVER_TYPE_USER, object : CometChat.CallbackListener<String>() {
+
+            override fun onSuccess(resultString:String) {
+                Log.d("blockUser", "onSuccess: ${resultString}")
+               result.success(null)
+            }
+
+            override fun onError(e: CometChatException) {
+                Log.d("blockUser", "onError: ${e.message}")
+                result.error(e.code, e.message, e.details)
+
+            }
+        })
     }
 
     private fun blockUsers(call: MethodCall, result: Result) {

@@ -403,6 +403,15 @@ class CometChat {
     }
   }
 
+  /// Deletes the [conversation] and removes [conversation] from the [chatState]
+  Future<void> deleteConversation(String uid) async {
+    try {
+      await _channel.invokeMethod('deleteConversation', {'uid': uid});
+    } catch (e) {
+      throw e;
+    }
+  }
+
   Future<Map<String, dynamic>> blockUser(List<String>? uids) async {
     try {
       final result = await _channel.invokeMethod('blockUsers', {'uids': uids});

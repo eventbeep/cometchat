@@ -220,6 +220,12 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                   child: Text("Get members by search")),
+            TextButton(
+                onPressed: () {
+                  widget.cometChat.deleteConversation(
+                      (widget.conversation.conversationWith as User).uid);
+                },
+                child: Text("Delete Conversation")),
             Expanded(
               child: ListView.builder(
                 itemCount: list.length,
