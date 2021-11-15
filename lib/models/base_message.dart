@@ -28,6 +28,7 @@ class BaseMessage {
   final String conversationId;
   final int parentMessageId;
   final int replyCount;
+  final bool isAnonymous;
 
   BaseMessage({
     required this.id,
@@ -52,6 +53,7 @@ class BaseMessage {
     required this.conversationId,
     required this.parentMessageId,
     required this.replyCount,
+    required this.isAnonymous,
   });
 
   factory BaseMessage.fromMap(dynamic map) {

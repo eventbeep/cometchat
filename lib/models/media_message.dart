@@ -35,6 +35,7 @@ class MediaMessage extends BaseMessage {
     required String conversationId,
     required int parentMessageId,
     required int replyCount,
+    required bool isAnonymous,
   }) : super(
           id: id,
           muid: muid,
@@ -58,6 +59,7 @@ class MediaMessage extends BaseMessage {
           conversationId: conversationId,
           parentMessageId: parentMessageId,
           replyCount: replyCount,
+          isAnonymous: isAnonymous,
         );
 
   factory MediaMessage.fromMap(dynamic map, {AppEntity? receiver}) {
@@ -77,34 +79,36 @@ class MediaMessage extends BaseMessage {
         : map['conversationId'];
 
     return MediaMessage(
-      caption: map['caption'] ?? '',
-      attachment: map['attachment'] == null
-          ? null
-          : Attachment.fromMap(map['attachment']),
-      id: map['id'],
-      muid: map['muid'],
-      sender: map['sender'] == null ? null : User.fromMap(map['sender']),
-      receiver: appEntity,
-      receiverUid: map['receiverUid'],
-      type: map['type'],
-      receiverType: map['receiverType'],
-      category: map['category'],
-      sentAt: DateTime.fromMillisecondsSinceEpoch(map['sentAt'] * 1000),
-      deliveredAt:
-          DateTime.fromMillisecondsSinceEpoch(map['deliveredAt'] * 1000),
-      readAt: DateTime.fromMillisecondsSinceEpoch(map['readAt'] * 1000),
-      metadata: Map<String, dynamic>.from(json.decode(map['metadata'] ?? '{}')),
-      readByMeAt: DateTime.fromMillisecondsSinceEpoch(map['readByMeAt'] * 1000),
-      deliveredToMeAt:
-          DateTime.fromMillisecondsSinceEpoch(map['deliveredToMeAt'] * 1000),
-      deletedAt: DateTime.fromMillisecondsSinceEpoch(map['deletedAt'] * 1000),
-      editedAt: DateTime.fromMillisecondsSinceEpoch(map['editedAt'] * 1000),
-      deletedBy: map['deletedBy'],
-      editedBy: map['editedBy'],
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
-      conversationId: conversationId,
-      parentMessageId: map['parentMessageId'],
-      replyCount: map['replyCount'],
-    );
+        caption: map['caption'] ?? '',
+        attachment: map['attachment'] == null
+            ? null
+            : Attachment.fromMap(map['attachment']),
+        id: map['id'],
+        muid: map['muid'],
+        sender: map['sender'] == null ? null : User.fromMap(map['sender']),
+        receiver: appEntity,
+        receiverUid: map['receiverUid'],
+        type: map['type'],
+        receiverType: map['receiverType'],
+        category: map['category'],
+        sentAt: DateTime.fromMillisecondsSinceEpoch(map['sentAt'] * 1000),
+        deliveredAt:
+            DateTime.fromMillisecondsSinceEpoch(map['deliveredAt'] * 1000),
+        readAt: DateTime.fromMillisecondsSinceEpoch(map['readAt'] * 1000),
+        metadata:
+            Map<String, dynamic>.from(json.decode(map['metadata'] ?? '{}')),
+        readByMeAt:
+            DateTime.fromMillisecondsSinceEpoch(map['readByMeAt'] * 1000),
+        deliveredToMeAt:
+            DateTime.fromMillisecondsSinceEpoch(map['deliveredToMeAt'] * 1000),
+        deletedAt: DateTime.fromMillisecondsSinceEpoch(map['deletedAt'] * 1000),
+        editedAt: DateTime.fromMillisecondsSinceEpoch(map['editedAt'] * 1000),
+        deletedBy: map['deletedBy'],
+        editedBy: map['editedBy'],
+        updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] * 1000),
+        conversationId: conversationId,
+        parentMessageId: map['parentMessageId'],
+        replyCount: map['replyCount'],
+        isAnonymous: false);
   }
 }

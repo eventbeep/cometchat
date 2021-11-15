@@ -8,7 +8,6 @@ import 'package:cometchat/models/action.dart' as c;
 import 'package:cometchat/models/user.dart';
 import 'package:cometchat/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(MyApp());
@@ -238,6 +237,7 @@ class _ChatPageState extends State<ChatPage> {
                   }
                   return ListTile(
                     title: Text(text ?? 'Empty'),
+                    subtitle: Text(list[index].isAnonymous ? "Anonymous" : ""),
                   );
                 },
               ),
@@ -251,16 +251,11 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 FloatingActionButton(
                   child: Icon(Icons.send),
-                  onPressed: () async {
-                    final image = await ImagePicker()
-                        .pickImage(source: ImageSource.gallery);
-                    widget.cometChat.sendMediaMessage(
-                      'file://${image.path}',
-                      'image',
+                  onPressed: () => widget.cometChat.sendMessage(
+                      messageText,
                       widget.conversation.conversationWith,
                       CometReceiverType.user,
-                    );
-                  },
+                      isAnonymous: true),
                 ),
               ],
             )

@@ -31,30 +31,31 @@ class TextMessage extends BaseMessage {
     required String conversationId,
     required int parentMessageId,
     required int replyCount,
+    required bool isAnonymous,
   }) : super(
-          id: id,
-          muid: muid,
-          sender: sender,
-          receiver: receiver,
-          receiverUid: receiverUid,
-          type: type,
-          receiverType: receiverType,
-          category: category,
-          sentAt: sentAt,
-          deliveredAt: deliveredAt,
-          readAt: readAt,
-          metadata: metadata,
-          readByMeAt: readByMeAt,
-          deliveredToMeAt: deliveredToMeAt,
-          deletedAt: deletedAt,
-          editedAt: editedAt,
-          deletedBy: deletedBy,
-          editedBy: editedBy,
-          updatedAt: updatedAt,
-          conversationId: conversationId,
-          parentMessageId: parentMessageId,
-          replyCount: replyCount,
-        );
+            id: id,
+            muid: muid,
+            sender: sender,
+            receiver: receiver,
+            receiverUid: receiverUid,
+            type: type,
+            receiverType: receiverType,
+            category: category,
+            sentAt: sentAt,
+            deliveredAt: deliveredAt,
+            readAt: readAt,
+            metadata: metadata,
+            readByMeAt: readByMeAt,
+            deliveredToMeAt: deliveredToMeAt,
+            deletedAt: deletedAt,
+            editedAt: editedAt,
+            deletedBy: deletedBy,
+            editedBy: editedBy,
+            updatedAt: updatedAt,
+            conversationId: conversationId,
+            parentMessageId: parentMessageId,
+            replyCount: replyCount,
+            isAnonymous: isAnonymous);
 
   factory TextMessage.fromMap(dynamic map, {AppEntity? receiver}) {
     if (map == null) throw ArgumentError('The type of textmessage map is null');
@@ -70,7 +71,6 @@ class TextMessage extends BaseMessage {
             ? '${map['sender']['uid']}_user_${(appEntity as User).uid}'
             : 'group_${map['receiver']['guid']}'
         : map['conversationId'];
-
     return TextMessage(
       text: map['text'] ?? '',
       id: map['id'],
@@ -99,6 +99,9 @@ class TextMessage extends BaseMessage {
       conversationId: conversationId,
       parentMessageId: map['parentMessageId'],
       replyCount: map['replyCount'],
+      isAnonymous: Map<String, dynamic>.from(
+              json.decode(map['metadata'] ?? '{}'))['isAnonymous'] ??
+          false,
     );
   }
 }
