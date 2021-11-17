@@ -204,10 +204,11 @@ class CometchatPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         val receiverType: String = call.argument("receiverType") ?: ""
         val parentMessageId: Int = call.argument("parentMessageId") ?: -1
         val isAnonymous: Boolean =  call.argument("isAnonymous")?:false
+        val metadata: HashMap<Any?,Any?> = call.argument<HashMap<Any?,Any?>>("metadata")?:HashMap();
         val textMessage = TextMessage(receiverID, messageText, receiverType)
 
         if (parentMessageId > 0) textMessage.parentMessageId = parentMessageId
-        textMessage.metadata =JSONObject("{isAnonymous:${isAnonymous}}");
+        textMessage.metadata =JSONObject(metadata);
 
         Log.d("sendMessage", "parentMessageId - $parentMessageId")
 

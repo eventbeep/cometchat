@@ -237,7 +237,10 @@ class _ChatPageState extends State<ChatPage> {
                   }
                   return ListTile(
                     title: Text(text ?? 'Empty'),
-                    subtitle: Text(list[index].isAnonymous ? "Anonymous" : ""),
+                    subtitle: Text(
+                        (list[index].metadata['isAnonymous'] ?? false)
+                            ? "Anonymous"
+                            : ""),
                   );
                 },
               ),
@@ -255,7 +258,7 @@ class _ChatPageState extends State<ChatPage> {
                       messageText,
                       widget.conversation.conversationWith,
                       CometReceiverType.user,
-                      isAnonymous: true),
+                      metadata: {"isAnonymous": true}),
                 ),
               ],
             )

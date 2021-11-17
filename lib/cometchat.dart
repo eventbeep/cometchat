@@ -119,7 +119,7 @@ class CometChat {
 
   Future<TextMessage> sendMessage(
       String messageText, AppEntity receiver, String receiverType,
-      {int? parentMessageId, bool? isAnonymous = false}) async {
+      {int? parentMessageId, Map<String, dynamic>? metadata}) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
         'receiverId': (receiverType == 'user')
@@ -128,7 +128,7 @@ class CometChat {
         'receiverType': receiverType,
         'messageText': messageText,
         'parentMessageId': parentMessageId,
-        'isAnonymous': isAnonymous,
+        'metadata': metadata ?? {},
       });
 
       Logger().d('cometchat $result');
