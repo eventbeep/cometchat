@@ -70,7 +70,6 @@ class TextMessage extends BaseMessage {
             ? '${map['sender']['uid']}_user_${(appEntity as User).uid}'
             : 'group_${map['receiver']['guid']}'
         : map['conversationId'];
-
     return TextMessage(
       text: map['text'] ?? '',
       id: map['id'],
