@@ -118,8 +118,12 @@ class CometChat {
   }
 
   Future<TextMessage> sendMessage(
-      String messageText, AppEntity receiver, String receiverType,
-      {int? parentMessageId, Map<String, dynamic>? metadata}) async {
+    String messageText,
+    AppEntity receiver,
+    String receiverType, {
+    int? parentMessageId,
+    Map<String, dynamic>? metadata,
+  }) async {
     try {
       final result = await _channel.invokeMethod('sendMessage', {
         'receiverId': (receiverType == 'user')
@@ -128,7 +132,7 @@ class CometChat {
         'receiverType': receiverType,
         'messageText': messageText,
         'parentMessageId': parentMessageId,
-        'metadata': metadata ?? {},
+        'metadata': metadata,
       });
 
       Logger().d('cometchat $result');

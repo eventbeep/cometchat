@@ -89,6 +89,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
                 self?.unblockUsers(args: args, result:result)
             case "fetchBlockedUsers":
                 self?.fetchBlockedUsers(result:result)
+            case "deleteConversation":
+                self?.deleteConversation(args: args, result: result)
             default:
                 result(FlutterMethodNotImplemented)
             }
@@ -187,6 +189,7 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         let messageText = args["messageText"] as? String ?? ""
         let receiver = args["receiverType"] as? String ?? ""
         let parentMessageId = args["parentMessageId"] as? Int ?? 0
+        let metadata = args["metadata"] as? [String:Any]
                 
         let receiverType : CometChat.ReceiverType
         switch receiver {
@@ -197,6 +200,8 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
         }
         
         let textMessage = TextMessage(receiverUid: receiverID , text: messageText, receiverType: receiverType)
+
+        textMessage.metaData = metadata
 
         if parentMessageId > 0 {
             textMessage.parentMessageId = parentMessageId
@@ -590,6 +595,19 @@ public class SwiftCometchatPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: error?.errorCode ?? "" ,
                                 message: error?.errorDescription, details: error?.debugDescription))
         })
+    }
+    
+    private func deleteConversation(args: [String: Any], result: @escaping FlutterResult){
+        let uid = args["uid"] as? String ?? ""
+
+        CometChat.deleteConversation(conversationWith: uid, conversationType: .user,onSuccess: { message in
+            print("Conversation deleted", message)
+            result(nil)
+          }, onError: {error in
+              print("delete Convearstion failed with error: \(error?.errorDescription)")
+            result(FlutterError(code: error?.errorCode ?? "" ,
+                                message: error?.errorDescription, details: error?.debugDescription))
+          })
     }
     
     private func getConversationMap(conversation: Conversation?) -> [String: Any]? {
